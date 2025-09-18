@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+
+{% block title %}Text to Image - AI Generator{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-image"></i> Text to Image Generation
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="prompt" class="form-label">Prompt *</label>
+                        <textarea class="form-control" id="prompt" name="prompt" rows="3" required
+                                  placeholder="Describe the image you want to generate...">{{ prompt or '' }}</textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="negative_prompt" class="form-label">Negative Prompt</label>
+                        <textarea class="form-control" id="negative_prompt" name="negative_prompt" rows="2"
+                                  placeholder="Describe what you don't want in the image..."></textarea>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="width" class="form-label">Width</label>
+                                <select class="form-select" id="width" name="width">
+                                    <option value="512" selected>512px</option>
+                                    <option value="768">768px</option>
+                                    <option value="1024">1024px</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="height" class="form-label">Height</label>
+                                <select class="form-select" id="height" name="height">
+                                    <option value="512" selected>512px</option>
+                                    <option value="768">768px</option>
+                                    <option value="1024">1024px</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="steps" class="form-label">Steps</label>
+                                <input type="number" class="form-control" id="steps" name="steps" 
+                                       value="20" min="1" max="50">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="guidance" class="form-label">Guidance Scale</label>
+                                <input type="number" class="form-control" id="guidance" name="guidance" 
+                                       value="7.5" min="1" max="20" step="0.5">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="num_images" class="form-label">Number of Images</label>
+                                <select class="form-select" id="num_images" name="num_images">
+                                    <option value="1" selected>1</option>
+                                    <option value="2">2</option>
+                                    <option value="4">4</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="seed" class="form-label">Seed (optional)</label>
+                        <input type="number" class="form-control" id="seed" name="seed" 
+                               placeholder="Leave empty for random seed">
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-magic"></i> Generate Images
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="bi bi-lightbulb"></i> Tips
+                </h6>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled">
+                    <li><strong>Prompt:</strong> Be specific and descriptive</li>
+                    <li><strong>Negative:</strong> Exclude unwanted elements</li>
+                    <li><strong>Steps:</strong> More steps = better quality (slower)</li>
+                    <li><strong>Guidance:</strong> Higher = follows prompt more closely</li>
+                    <li><strong>Seed:</strong> Same seed = reproducible results</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if images %}
+<div class="generated-content">
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">
+                <i class="bi bi-check-circle text-success"></i> Generated Images
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="file-grid">
+                {% for image in images %}
+                <div class="file-card">
+                    <img src="{{ url_for('serve_output', filename=image) }}" 
+                         alt="Generated image" class="preview-image">
+                    <div class="p-2">
+                        <small class="text-muted">{{ image }}</small>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

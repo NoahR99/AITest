@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+
+{% block title %}Text to Video - AI Generator{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-camera-video"></i> Text to Video Generation
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="prompt" class="form-label">Prompt *</label>
+                        <textarea class="form-control" id="prompt" name="prompt" rows="3" required
+                                  placeholder="Describe the video you want to generate...">{{ prompt or '' }}</textarea>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="frames" class="form-label">Number of Frames</label>
+                                <select class="form-select" id="frames" name="frames">
+                                    <option value="8">8 frames</option>
+                                    <option value="16" selected>16 frames</option>
+                                    <option value="24">24 frames</option>
+                                    <option value="32">32 frames</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="width" class="form-label">Width</label>
+                                <select class="form-select" id="width" name="width">
+                                    <option value="256">256px</option>
+                                    <option value="320" selected>320px</option>
+                                    <option value="512">512px</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="height" class="form-label">Height</label>
+                                <select class="form-select" id="height" name="height">
+                                    <option value="256">256px</option>
+                                    <option value="320" selected>320px</option>
+                                    <option value="512">512px</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="steps" class="form-label">Steps</label>
+                                <input type="number" class="form-control" id="steps" name="steps" 
+                                       value="20" min="1" max="50">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="guidance" class="form-label">Guidance Scale</label>
+                                <input type="number" class="form-control" id="guidance" name="guidance" 
+                                       value="7.5" min="1" max="20" step="0.5">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="fps" class="form-label">Frame Rate (FPS)</label>
+                                <select class="form-select" id="fps" name="fps">
+                                    <option value="4">4 FPS</option>
+                                    <option value="8" selected>8 FPS</option>
+                                    <option value="12">12 FPS</option>
+                                    <option value="16">16 FPS</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="seed" class="form-label">Seed (optional)</label>
+                        <input type="number" class="form-control" id="seed" name="seed" 
+                               placeholder="Leave empty for random seed">
+                    </div>
+                    
+                    <button type="submit" class="btn btn-info">
+                        <i class="bi bi-camera-video"></i> Generate Video
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="bi bi-lightbulb"></i> Tips
+                </h6>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled">
+                    <li><strong>Frames:</strong> More frames = longer video</li>
+                    <li><strong>Resolution:</strong> Higher = better quality (slower)</li>
+                    <li><strong>FPS:</strong> Frame rate for playback</li>
+                    <li><strong>Prompt:</strong> Describe motion and scenes</li>
+                    <li><strong>Note:</strong> Video generation takes longer</li>
+                </ul>
+                
+                <h6 class="mt-3">Example Prompts:</h6>
+                <ul class="list-unstyled small">
+                    <li>"A bird flying over ocean waves"</li>
+                    <li>"Fire burning in a fireplace"</li>
+                    <li>"Person walking down a street"</li>
+                    <li>"Clouds moving across the sky"</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if video %}
+<div class="generated-content">
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">
+                <i class="bi bi-check-circle text-success"></i> Generated Video
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="text-center">
+                <video controls class="preview-video" style="max-width: 100%; height: auto;">
+                    <source src="{{ url_for('serve_output', filename=video) }}" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+                <div class="mt-2">
+                    <small class="text-muted">{{ video }}</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
