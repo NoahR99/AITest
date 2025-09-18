@@ -68,6 +68,123 @@ View all CLI options:
 python cli.py --help
 ```
 
+## Running in VS Code
+
+### Prerequisites for VS Code
+- [Visual Studio Code](https://code.visualstudio.com/) installed
+- [Python extension for VS Code](https://marketplace.visualstudio.com/items?itemName=ms-python.python) installed
+
+### Setup in VS Code
+
+1. **Open the project in VS Code**:
+```bash
+code AITest
+```
+Or use `File > Open Folder` in VS Code to open the project directory.
+
+2. **Configure the Python interpreter**:
+   - Open the Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`)
+   - Type "Python: Select Interpreter"
+   - Choose the interpreter from your virtual environment: `./venv/bin/python` (Linux/Mac) or `.\venv\Scripts\python.exe` (Windows)
+
+3. **Install recommended extensions** (when prompted by VS Code):
+   - Python (ms-python.python)
+   - Pylance (ms-python.vscode-pylance)
+   - Python Debugger (ms-python.debugpy)
+
+### Running the Application in VS Code
+
+#### Method 1: Using the Integrated Terminal
+1. Open a new terminal in VS Code (`Terminal > New Terminal`)
+2. Activate the virtual environment:
+   ```bash
+   source venv/bin/activate  # Linux/Mac
+   # or
+   venv\Scripts\activate     # Windows
+   ```
+3. Run the application:
+   ```bash
+   # Web interface
+   python web_app.py
+   
+   # CLI commands
+   python cli.py --help
+   python cli.py text-to-image "A beautiful landscape"
+   ```
+
+#### Method 2: Using VS Code's Run Button
+1. Open `web_app.py` in the editor
+2. Click the "Run Python File" button (▶️) in the top-right corner
+3. The web application will start and you can access it at `http://localhost:5000`
+
+#### Method 3: Creating Launch Configurations
+Create a `.vscode/launch.json` file for debugging:
+
+```json
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Web App",
+            "type": "python",
+            "request": "launch",
+            "program": "web_app.py",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "CLI Help",
+            "type": "python",
+            "request": "launch",
+            "program": "cli.py",
+            "args": ["--help"],
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "Text to Image",
+            "type": "python",
+            "request": "launch",
+            "program": "cli.py",
+            "args": ["text-to-image", "A beautiful sunset"],
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}"
+        }
+    ]
+}
+```
+
+### VS Code Workspace Settings
+Create a `.vscode/settings.json` file for optimal development experience:
+
+```json
+{
+    "python.defaultInterpreterPath": "./venv/bin/python",
+    "python.terminal.activateEnvironment": true,
+    "python.linting.enabled": true,
+    "python.linting.pylintEnabled": false,
+    "python.linting.flake8Enabled": true,
+    "python.formatting.provider": "black",
+    "files.exclude": {
+        "**/__pycache__": true,
+        "**/venv": true,
+        "**/.git": true
+    }
+}
+```
+
+### Debugging in VS Code
+1. Set breakpoints by clicking in the left margin of your code
+2. Use the Debug panel (`Run and Debug` in the sidebar)
+3. Select your launch configuration and press F5 to start debugging
+4. Use F10 (step over), F11 (step into), and F5 (continue) to navigate through your code
+
+### Tips for VS Code Development
+- Use `Ctrl+`` ` to quickly open/close the integrated terminal
+- Install the "Python Docstring Generator" extension for better documentation
+- Use `Ctrl+Shift+P` and type "Python: Create Terminal" to get a terminal with the virtual environment already activated
+- The Python extension will automatically detect your `requirements.txt` and suggest installing packages
+
 ## Examples
 
 ### Text to Image

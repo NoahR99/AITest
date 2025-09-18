@@ -1,0 +1,31 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Web App",
+            "type": "python",
+            "request": "launch",
+            "program": "web_app.py",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "CLI Help",
+            "type": "python",
+            "request": "launch",
+            "program": "cli.py",
+            "args": ["--help"],
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "Text to Image",
+            "type": "python",
+            "request": "launch",
+            "program": "cli.py",
+            "args": ["text-to-image", "A beautiful sunset"],
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}"
+        }
+    ]
+}
