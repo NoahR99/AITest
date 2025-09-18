@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+
+{% block title %}Image to Image - AI Generator{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-arrow-repeat"></i> Image to Image Generation
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label for="input_image" class="form-label">Input Image *</label>
+                        <input type="file" class="form-control" id="input_image" name="input_image" 
+                               accept="image/*" required>
+                        <div class="form-text">Upload an image to transform (PNG, JPG, etc.)</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="prompt" class="form-label">Prompt *</label>
+                        <textarea class="form-control" id="prompt" name="prompt" rows="3" required
+                                  placeholder="Describe how you want to transform the image...">{{ prompt or '' }}</textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="negative_prompt" class="form-label">Negative Prompt</label>
+                        <textarea class="form-control" id="negative_prompt" name="negative_prompt" rows="2"
+                                  placeholder="Describe what you don't want in the image..."></textarea>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="strength" class="form-label">Transformation Strength</label>
+                                <input type="range" class="form-range" id="strength" name="strength" 
+                                       min="0.1" max="1.0" step="0.05" value="0.75">
+                                <div class="d-flex justify-content-between">
+                                    <small class="text-muted">0.1 (subtle)</small>
+                                    <small class="text-muted" id="strength-value">0.75</small>
+                                    <small class="text-muted">1.0 (dramatic)</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="guidance" class="form-label">Guidance Scale</label>
+                                <input type="number" class="form-control" id="guidance" name="guidance" 
+                                       value="7.5" min="1" max="20" step="0.5">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="steps" class="form-label">Steps</label>
+                                <input type="number" class="form-control" id="steps" name="steps" 
+                                       value="20" min="1" max="50">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="seed" class="form-label">Seed (optional)</label>
+                                <input type="number" class="form-control" id="seed" name="seed" 
+                                       placeholder="Leave empty for random seed">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-arrow-repeat"></i> Transform Image
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="bi bi-lightbulb"></i> Tips
+                </h6>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled">
+                    <li><strong>Strength:</strong> How much to change the image</li>
+                    <li><strong>Low (0.1-0.3):</strong> Subtle style changes</li>
+                    <li><strong>Medium (0.4-0.7):</strong> Moderate transformation</li>
+                    <li><strong>High (0.8-1.0):</strong> Dramatic changes</li>
+                    <li><strong>Prompt:</strong> Describe the desired outcome</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if images %}
+<div class="generated-content">
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">
+                <i class="bi bi-check-circle text-success"></i> Transformed Images
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="file-grid">
+                {% for image in images %}
+                <div class="file-card">
+                    <img src="{{ url_for('serve_output', filename=image) }}" 
+                         alt="Transformed image" class="preview-image">
+                    <div class="p-2">
+                        <small class="text-muted">{{ image }}</small>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.getElementById('strength').addEventListener('input', function() {
+    document.getElementById('strength-value').textContent = this.value;
+});
+</script>
+{% endblock %}

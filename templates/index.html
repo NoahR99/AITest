@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block title %}AI Generator - Home{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="jumbotron bg-light p-5 rounded-3 mb-4">
+            <h1 class="display-4">
+                <i class="bi bi-magic"></i> AI Generator
+            </h1>
+            <p class="lead">Generate stunning images and videos using the power of AI. Create content from text prompts or transform existing images.</p>
+            <hr class="my-4">
+            <p>Choose from the options below to start creating amazing AI-generated content.</p>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="bi bi-image display-1 text-primary mb-3"></i>
+                <h5 class="card-title">Text to Image</h5>
+                <p class="card-text">Generate beautiful images from your text descriptions using advanced AI models.</p>
+                <a href="{{ url_for('text_to_image') }}" class="btn btn-primary">
+                    <i class="bi bi-arrow-right"></i> Start Creating
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="bi bi-arrow-repeat display-1 text-success mb-3"></i>
+                <h5 class="card-title">Image to Image</h5>
+                <p class="card-text">Transform existing images with AI by providing new text prompts and style guidance.</p>
+                <a href="{{ url_for('image_to_image') }}" class="btn btn-success">
+                    <i class="bi bi-arrow-right"></i> Transform Images
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="bi bi-camera-video display-1 text-info mb-3"></i>
+                <h5 class="card-title">Text to Video</h5>
+                <p class="card-text">Create short video clips from text descriptions using cutting-edge video generation AI.</p>
+                <a href="{{ url_for('text_to_video') }}" class="btn btn-info">
+                    <i class="bi bi-arrow-right"></i> Generate Videos
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-5">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-info-circle"></i> Getting Started
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>💡 Tips for Better Results:</h6>
+                        <ul>
+                            <li>Be specific and descriptive in your prompts</li>
+                            <li>Use negative prompts to exclude unwanted elements</li>
+                            <li>Experiment with different guidance scales and steps</li>
+                            <li>Set a seed for reproducible results</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>📚 Example Prompts:</h6>
+                        <ul>
+                            <li>"A majestic mountain landscape at sunset"</li>
+                            <li>"Portrait of a robot in cyberpunk style"</li>
+                            <li>"A cat wearing a wizard hat, digital art"</li>
+                            <li>"Ocean waves crashing on a beach, 4K"</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <a href="{{ url_for('gallery') }}" class="btn btn-outline-primary">
+                        <i class="bi bi-collection"></i> View Gallery
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
