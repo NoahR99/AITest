@@ -1,0 +1,42 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Web App Debug",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/web_app.py",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "env": {
+                "FLASK_ENV": "development",
+                "FLASK_DEBUG": "1"
+            }
+        },
+        {
+            "name": "CLI Debug",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/cli.py",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "args": ["--help"]
+        },
+        {
+            "name": "Example Script",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/example.py",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "Test Structure",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/test_structure.py",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}"
+        }
+    ]
+}

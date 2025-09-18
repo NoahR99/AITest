@@ -38,6 +38,48 @@ chmod +x setup.sh
 source venv/bin/activate
 ```
 
+### VS Code Setup
+
+To run and develop this project in Visual Studio Code:
+
+1. **Open the project**:
+   - Open VS Code
+   - Use `File > Open Folder` and select the `AITest` directory
+   - Or use the command line: `code .` from the project directory
+
+2. **Recommended VS Code extensions**:
+   - **Python** (Microsoft) - Essential for Python development
+   - **Python Debugger** (Microsoft) - For debugging Python code
+   - **Pylance** (Microsoft) - Enhanced Python language support
+   - **Jupyter** (Microsoft) - If you want to work with notebooks
+   - **GitLens** (GitKraken) - Enhanced Git integration
+
+3. **Configure Python interpreter**:
+   - Press `Ctrl+Shift+P` (or `Cmd+Shift+P` on Mac) to open Command Palette
+   - Type "Python: Select Interpreter"
+   - Choose the interpreter from your virtual environment: `./venv/bin/python`
+
+4. **VS Code workspace settings** (included):
+   This project includes pre-configured VS Code settings in the `.vscode/` folder:
+   - `settings.json` - Python interpreter, linting, and formatting settings
+   - `tasks.json` - Common tasks like starting the web app and running tests
+   - `launch.json` - Debug configurations for different components
+   - `extensions.json` - Recommended extensions for the best development experience
+   
+   VS Code will automatically suggest installing the recommended extensions when you open the project.
+
+5. **Running the application in VS Code**:
+   - **Web Interface**: Open terminal in VS Code (`Terminal > New Terminal`) and run:
+     ```bash
+     python web_app.py
+     ```
+   - **CLI Interface**: Use the integrated terminal for CLI commands:
+     ```bash
+     python cli.py text-to-image "Your prompt here"
+     ```
+   - **Debug Mode**: Set breakpoints in the code and use F5 to start debugging
+   - **Using Tasks**: Press `Ctrl+Shift+P` and type "Tasks: Run Task" to access pre-configured tasks
+
 ### Usage
 
 #### Web Interface (Recommended)

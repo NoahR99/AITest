@@ -28,11 +28,13 @@ ENV/
 .venv/
 
 # IDE
-.vscode/
 .idea/
 *.swp
 *.swo
 *~
+
+# VS Code settings that should be excluded (user-specific)
+.vscode/settings_local.json
 
 # OS
 .DS_Store
