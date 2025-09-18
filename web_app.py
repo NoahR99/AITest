@@ -11,9 +11,15 @@ from config import OUTPUT_DIR, TEMP_DIR
 import threading
 import time
 
+# Load environment variables from .env file if it exists
+from dotenv import load_dotenv
+load_dotenv()
+
 app = Flask(__name__)
-app.secret_key = 'ai-generator-secret-key'
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
+
+# Configure app from environment variables
+app.secret_key = os.getenv('SECRET_KEY', 'ai-generator-secret-key')
+app.config['MAX_CONTENT_LENGTH'] = int(os.getenv('MAX_CONTENT_LENGTH', 16 * 1024 * 1024))  # Default 16MB
 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp'}
 
@@ -235,4 +241,18 @@ def gallery():
 
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    # Configuration for different environments
+    import os
+    
+    # Get configuration from environment variables
+    debug = os.getenv('FLASK_DEBUG', 'True').lower() == 'true'
+    host = os.getenv('FLASK_HOST', '0.0.0.0')
+    port = int(os.getenv('FLASK_PORT', 5000))
+    
+    # Print startup information
+    print(f"🚀 Starting AI Generator Web App")
+    print(f"🌐 Server: http://{host}:{port}")
+    print(f"🔧 Debug mode: {debug}")
+    print(f"📁 Output directory: {OUTPUT_DIR}")
+    
+    app.run(debug=debug, host=host, port=port)

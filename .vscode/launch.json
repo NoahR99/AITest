@@ -7,7 +7,23 @@
             "request": "launch",
             "program": "web_app.py",
             "console": "integratedTerminal",
-            "cwd": "${workspaceFolder}"
+            "cwd": "${workspaceFolder}",
+            "env": {
+                "FLASK_ENV": "development",
+                "FLASK_DEBUG": "true"
+            }
+        },
+        {
+            "name": "Web App (Production)",
+            "type": "python",
+            "request": "launch",
+            "program": "wsgi.py",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "env": {
+                "FLASK_ENV": "production",
+                "FLASK_DEBUG": "false"
+            }
         },
         {
             "name": "CLI Help",
@@ -24,6 +40,22 @@
             "request": "launch",
             "program": "cli.py",
             "args": ["text-to-image", "A beautiful sunset"],
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "Create Demo Files",
+            "type": "python",
+            "request": "launch",
+            "program": "create_demo.py",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "Structure Test",
+            "type": "python",
+            "request": "launch",
+            "program": "test_structure.py",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}"
         }

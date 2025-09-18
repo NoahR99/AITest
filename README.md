@@ -21,21 +21,45 @@ An AI-powered application that generates stunning images and videos from text pr
 
 ### Installation
 
+#### Option 1: Automated Setup (Recommended)
+
+**For Linux/Mac:**
+```bash
+git clone https://github.com/NoahR99/AITest.git
+cd AITest
+chmod +x setup.sh
+./setup.sh
+```
+
+**For Windows:**
+```cmd
+git clone https://github.com/NoahR99/AITest.git
+cd AITest
+setup.bat
+```
+
+#### Option 2: Manual Setup
+
 1. **Clone the repository**:
 ```bash
 git clone https://github.com/NoahR99/AITest.git
 cd AITest
 ```
 
-2. **Run the setup script**:
+2. **Create virtual environment**:
 ```bash
-chmod +x setup.sh
-./setup.sh
+# Linux/Mac
+python3 -m venv venv
+source venv/bin/activate
+
+# Windows
+python -m venv venv
+venv\Scripts\activate
 ```
 
-3. **Activate the virtual environment**:
+3. **Install dependencies**:
 ```bash
-source venv/bin/activate
+pip install -r requirements.txt
 ```
 
 ### Usage
@@ -66,6 +90,101 @@ python cli.py text-to-video "A bird flying through clouds"
 View all CLI options:
 ```bash
 python cli.py --help
+```
+
+## Windows-Specific Setup
+
+### Prerequisites for Windows
+- **Python 3.8+**: Download from [python.org](https://www.python.org/downloads/)
+  - ✅ Make sure to check "Add Python to PATH" during installation
+- **Git**: Download from [git-scm.com](https://git-scm.com/download/win)
+- **Visual C++ Redistributable** (usually included with Python)
+
+### Windows Installation Steps
+
+1. **Open Command Prompt or PowerShell as Administrator** (recommended)
+
+2. **Clone and setup**:
+```cmd
+git clone https://github.com/NoahR99/AITest.git
+cd AITest
+setup.bat
+```
+
+3. **Run the application**:
+```cmd
+venv\Scripts\activate
+python web_app.py
+```
+
+### Windows Troubleshooting
+
+**Common Windows Issues:**
+
+1. **"Python not found" error**:
+   - Ensure Python is in your PATH
+   - Try using `py` instead of `python`
+   - Reinstall Python with "Add to PATH" checked
+
+2. **Permission errors**:
+   - Run Command Prompt as Administrator
+   - Check antivirus isn't blocking the installation
+
+3. **CUDA/GPU support on Windows**:
+   - Install [CUDA Toolkit](https://developer.nvidia.com/cuda-downloads)
+   - Install appropriate PyTorch version: `pip install torch torchvision --index-url https://download.pytorch.org/whl/cu118`
+
+## Web Deployment
+
+### Docker Deployment (Recommended for Production)
+
+1. **Build and run with Docker**:
+```bash
+# Build the image
+docker build -t ai-generator .
+
+# Run the container
+docker run -p 5000:5000 -v $(pwd)/outputs:/app/outputs ai-generator
+```
+
+2. **Or use Docker Compose**:
+```bash
+docker-compose up -d
+```
+
+### Cloud Deployment Options
+
+**Heroku:**
+```bash
+# Create Procfile
+echo "web: python wsgi.py" > Procfile
+
+# Deploy
+heroku create your-ai-generator
+git push heroku main
+```
+
+**Railway/Render:**
+- Use the provided `Dockerfile`
+- Set environment variables: `FLASK_ENV=production`
+
+**VPS/Cloud Server:**
+```bash
+# Install dependencies
+pip install gunicorn
+
+# Run with Gunicorn
+gunicorn --bind 0.0.0.0:5000 wsgi:app
+```
+
+### Environment Variables for Production
+
+```bash
+export FLASK_ENV=production
+export FLASK_HOST=0.0.0.0
+export FLASK_PORT=5000
+export FLASK_DEBUG=false
+export SECRET_KEY=your-secret-key-here
 ```
 
 ## Running in VS Code
