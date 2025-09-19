@@ -10,71 +10,175 @@
                 <h5 class="mb-0">
                     <i class="bi bi-arrow-repeat"></i> Image to Image Generation
                 </h5>
+                <small class="text-muted">Transform existing images with AI-powered modifications</small>
             </div>
             <div class="card-body">
-                <form method="POST" enctype="multipart/form-data">
-                    <div class="mb-3">
-                        <label for="input_image" class="form-label">Input Image *</label>
-                        <input type="file" class="form-control" id="input_image" name="input_image" 
-                               accept="image/*" required>
-                        <div class="form-text">Upload an image to transform (PNG, JPG, etc.)</div>
+                <form method="POST" enctype="multipart/form-data" id="transformForm">
+                    <div class="mb-4">
+                        <label for="input_image" class="form-label">
+                            <i class="bi bi-upload me-1"></i>Input Image *
+                        </label>
+                        <div class="upload-area" style="border: 2px dashed var(--primary-color); border-radius: var(--border-radius); padding: 2rem; text-align: center; background: rgba(102, 126, 234, 0.05);">
+                            <input type="file" class="form-control" id="input_image" name="input_image" 
+                                   accept="image/*" required style="display: none;">
+                            <div class="upload-content">
+                                <i class="bi bi-cloud-upload display-4 text-primary mb-3"></i>
+                                <h6>Click to upload or drag & drop</h6>
+                                <p class="text-muted mb-0">PNG, JPG, GIF up to 16MB</p>
+                            </div>
+                            <div class="preview-container" style="display: none;">
+                                <img id="imagePreview" class="preview-image" style="max-width: 100%; max-height: 300px; border-radius: var(--border-radius);">
+                                <button type="button" class="btn btn-outline-danger btn-sm mt-2" onclick="clearImage()">
+                                    <i class="bi bi-trash"></i> Remove
+                                </button>
+                            </div>
+                        </div>
                     </div>
                     
-                    <div class="mb-3">
-                        <label for="prompt" class="form-label">Prompt *</label>
-                        <textarea class="form-control" id="prompt" name="prompt" rows="3" required
-                                  placeholder="Describe how you want to transform the image...">{{ prompt or '' }}</textarea>
+                    <div class="mb-4">
+                        <label for="prompt" class="form-label">
+                            <i class="bi bi-pencil me-1"></i>Transformation Prompt *
+                        </label>
+                        <div class="position-relative">
+                            <textarea class="form-control" id="prompt" name="prompt" rows="3" required
+                                      placeholder="Describe how you want to transform the image... (e.g., 'Make it a watercolor painting', 'Add cyberpunk neon lighting')">{{ prompt or '' }}</textarea>
+                            <div class="form-text">
+                                <i class="bi bi-info-circle me-1"></i>
+                                Describe the desired transformation. Characters: <span id="promptCount">0</span>/400
+                            </div>
+                        </div>
                     </div>
                     
-                    <div class="mb-3">
-                        <label for="negative_prompt" class="form-label">Negative Prompt</label>
+                    <div class="mb-4">
+                        <label for="negative_prompt" class="form-label">
+                            <i class="bi bi-x-circle me-1"></i>Negative Prompt
+                        </label>
                         <textarea class="form-control" id="negative_prompt" name="negative_prompt" rows="2"
-                                  placeholder="Describe what you don't want in the image..."></textarea>
+                                  placeholder="Describe what you want to avoid in the transformation..."></textarea>
+                        <div class="form-text">
+                            <i class="bi bi-lightbulb me-1"></i>
+                            Specify elements to exclude from the transformed image
+                        </div>
                     </div>
                     
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="strength" class="form-label">Transformation Strength</label>
-                                <input type="range" class="form-range" id="strength" name="strength" 
-                                       min="0.1" max="1.0" step="0.05" value="0.75">
-                                <div class="d-flex justify-content-between">
-                                    <small class="text-muted">0.1 (subtle)</small>
-                                    <small class="text-muted" id="strength-value">0.75</small>
-                                    <small class="text-muted">1.0 (dramatic)</small>
+                    <!-- Advanced Settings Collapsible -->
+                    <div class="mb-4">
+                        <button class="btn btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#advancedSettings" aria-expanded="false" aria-controls="advancedSettings">
+                            <i class="bi bi-gear me-1"></i>Advanced Settings
+                        </button>
+                    </div>
+                    
+                    <div class="collapse" id="advancedSettings">
+                        <div class="card card-body mb-4">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="strength" class="form-label">
+                                            <i class="bi bi-sliders me-1"></i>Transformation Strength
+                                            <span class="badge bg-warning ms-1">Key</span>
+                                        </label>
+                                        <input type="range" class="form-range" id="strength" name="strength" 
+                                               min="0.1" max="1.0" step="0.05" value="0.75">
+                                        <div class="d-flex justify-content-between">
+                                            <small class="text-muted">0.1 (Subtle)</small>
+                                            <small class="text-primary fw-bold" id="strengthValue">0.75</small>
+                                            <small class="text-muted">1.0 (Dramatic)</small>
+                                        </div>
+                                        <div class="form-text">Controls how much the original image is modified</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="guidance" class="form-label">
+                                            <i class="bi bi-compass me-1"></i>Guidance Scale
+                                        </label>
+                                        <input type="range" class="form-range" id="guidance" name="guidance" 
+                                               value="7.5" min="1" max="20" step="0.5">
+                                        <div class="d-flex justify-content-between">
+                                            <small class="text-muted">1 (Creative)</small>
+                                            <small class="text-primary fw-bold" id="guidanceValue">7.5</small>
+                                            <small class="text-muted">20 (Strict)</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="steps" class="form-label">
+                                            <i class="bi bi-arrow-repeat me-1"></i>Steps
+                                        </label>
+                                        <input type="range" class="form-range" id="steps" name="steps" 
+                                               value="20" min="10" max="50" step="5">
+                                        <div class="d-flex justify-content-between">
+                                            <small class="text-muted">10 (Fast)</small>
+                                            <small class="text-primary fw-bold" id="stepsValue">20</small>
+                                            <small class="text-muted">50 (Best)</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="seed" class="form-label">
+                                            <i class="bi bi-shuffle me-1"></i>Seed (optional)
+                                        </label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" id="seed" name="seed" 
+                                                   placeholder="Random">
+                                            <button class="btn btn-outline-secondary" type="button" onclick="generateRandomSeed()">
+                                                <i class="bi bi-dice-3"></i>
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="guidance" class="form-label">Guidance Scale</label>
-                                <input type="number" class="form-control" id="guidance" name="guidance" 
-                                       value="7.5" min="1" max="20" step="0.5">
-                            </div>
-                        </div>
                     </div>
                     
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="steps" class="form-label">Steps</label>
-                                <input type="number" class="form-control" id="steps" name="steps" 
-                                       value="20" min="1" max="50">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="seed" class="form-label">Seed (optional)</label>
-                                <input type="number" class="form-control" id="seed" name="seed" 
-                                       placeholder="Leave empty for random seed">
-                            </div>
-                        </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-success btn-lg" disabled id="transformBtn">
+                            <i class="bi bi-arrow-repeat"></i> Transform Image
+                        </button>
                     </div>
-                    
-                    <button type="submit" class="btn btn-success">
-                        <i class="bi bi-arrow-repeat"></i> Transform Image
-                    </button>
                 </form>
+            </div>
+        </div>
+        
+        <!-- Quick Transformation Ideas -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="bi bi-lightbulb"></i> Quick Transformation Ideas
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row g-2">
+                    <div class="col-md-6">
+                        <button type="button" class="btn btn-outline-success btn-sm w-100 quick-transform" 
+                                data-prompt="Transform into a watercolor painting style">
+                            🎨 Watercolor Style
+                        </button>
+                    </div>
+                    <div class="col-md-6">
+                        <button type="button" class="btn btn-outline-success btn-sm w-100 quick-transform" 
+                                data-prompt="Add cyberpunk neon lighting and futuristic elements">
+                            🌆 Cyberpunk Style
+                        </button>
+                    </div>
+                    <div class="col-md-6">
+                        <button type="button" class="btn btn-outline-success btn-sm w-100 quick-transform" 
+                                data-prompt="Make it look like a vintage oil painting">
+                            🖼️ Oil Painting
+                        </button>
+                    </div>
+                    <div class="col-md-6">
+                        <button type="button" class="btn btn-outline-success btn-sm w-100 quick-transform" 
+                                data-prompt="Convert to black and white with dramatic lighting">
+                            ⚫ Dramatic B&W
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -83,17 +187,88 @@
         <div class="card">
             <div class="card-header">
                 <h6 class="mb-0">
-                    <i class="bi bi-lightbulb"></i> Tips
+                    <i class="bi bi-info-circle"></i> Transformation Guide
                 </h6>
             </div>
             <div class="card-body">
-                <ul class="list-unstyled">
-                    <li><strong>Strength:</strong> How much to change the image</li>
-                    <li><strong>Low (0.1-0.3):</strong> Subtle style changes</li>
-                    <li><strong>Medium (0.4-0.7):</strong> Moderate transformation</li>
-                    <li><strong>High (0.8-1.0):</strong> Dramatic changes</li>
-                    <li><strong>Prompt:</strong> Describe the desired outcome</li>
-                </ul>
+                <div class="accordion" id="transformTipsAccordion">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" 
+                                    data-bs-target="#strengthTips" aria-expanded="true" aria-controls="strengthTips">
+                                <i class="bi bi-sliders me-2"></i>Strength Settings
+                            </button>
+                        </h2>
+                        <div id="strengthTips" class="accordion-collapse collapse show" data-bs-parent="#transformTipsAccordion">
+                            <div class="accordion-body">
+                                <ul class="list-unstyled">
+                                    <li class="mb-2"><strong>0.1-0.3:</strong> <span class="text-success">Subtle changes</span> - Minor style adjustments</li>
+                                    <li class="mb-2"><strong>0.4-0.7:</strong> <span class="text-warning">Moderate</span> - Balanced transformation</li>
+                                    <li class="mb-2"><strong>0.8-1.0:</strong> <span class="text-danger">Dramatic</span> - Major reimagining</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" 
+                                    data-bs-target="#promptTips" aria-expanded="false" aria-controls="promptTips">
+                                <i class="bi bi-pencil me-2"></i>Prompt Tips
+                            </button>
+                        </h2>
+                        <div id="promptTips" class="accordion-collapse collapse" data-bs-parent="#transformTipsAccordion">
+                            <div class="accordion-body">
+                                <ul class="list-unstyled">
+                                    <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Describe the desired style</li>
+                                    <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Mention specific effects</li>
+                                    <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Include artistic mediums</li>
+                                    <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Reference famous artists or styles</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" 
+                                    data-bs-target="#exampleTransforms" aria-expanded="false" aria-controls="exampleTransforms">
+                                <i class="bi bi-collection me-2"></i>Example Transformations
+                            </button>
+                        </h2>
+                        <div id="exampleTransforms" class="accordion-collapse collapse" data-bs-parent="#transformTipsAccordion">
+                            <div class="accordion-body">
+                                <div class="mb-3">
+                                    <strong>Artistic Style:</strong><br>
+                                    <small class="text-muted">"In the style of Van Gogh, impressionist painting"</small>
+                                </div>
+                                <div class="mb-3">
+                                    <strong>Time Period:</strong><br>
+                                    <small class="text-muted">"Vintage 1950s advertisement style, retro colors"</small>
+                                </div>
+                                <div class="mb-3">
+                                    <strong>Lighting:</strong><br>
+                                    <small class="text-muted">"Dramatic chiaroscuro lighting, dark shadows"</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Generation Status Card -->
+        <div class="card mt-3" id="statusCard" style="display: none;">
+            <div class="card-body text-center">
+                <div class="spinner-border text-success mb-3" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <h6>Transforming your image...</h6>
+                <div class="progress mb-2">
+                    <div class="progress-bar bg-success progress-bar-striped progress-bar-animated" 
+                         role="progressbar" style="width: 0%" id="transformProgress"></div>
+                </div>
+                <small class="text-muted" id="statusText">Initializing...</small>
             </div>
         </div>
     </div>
@@ -113,8 +288,14 @@
                 <div class="file-card">
                     <img src="{{ url_for('serve_output', filename=image) }}" 
                          alt="Transformed image" class="preview-image">
-                    <div class="p-2">
-                        <small class="text-muted">{{ image }}</small>
+                    <div class="p-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">{{ image }}</small>
+                            <a href="{{ url_for('serve_output', filename=image) }}" download 
+                               class="btn btn-outline-success btn-sm">
+                                <i class="bi bi-download"></i>
+                            </a>
+                        </div>
                     </div>
                 </div>
                 {% endfor %}
@@ -123,12 +304,198 @@
     </div>
 </div>
 {% endif %}
-{% endblock %}
 
-{% block scripts %}
 <script>
-document.getElementById('strength').addEventListener('input', function() {
-    document.getElementById('strength-value').textContent = this.value;
+// Image to Image specific functionality
+document.addEventListener('DOMContentLoaded', function() {
+    initializeImageToImage();
 });
+
+function initializeImageToImage() {
+    // File upload handling
+    const fileInput = document.getElementById('input_image');
+    const uploadArea = document.querySelector('.upload-area');
+    const uploadContent = document.querySelector('.upload-content');
+    const previewContainer = document.querySelector('.preview-container');
+    const imagePreview = document.getElementById('imagePreview');
+    const transformBtn = document.getElementById('transformBtn');
+    
+    // Upload area click
+    uploadArea.addEventListener('click', function() {
+        if (!previewContainer.style.display || previewContainer.style.display === 'none') {
+            fileInput.click();
+        }
+    });
+    
+    // File input change
+    fileInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                imagePreview.src = e.target.result;
+                uploadContent.style.display = 'none';
+                previewContainer.style.display = 'block';
+                transformBtn.disabled = false;
+                uploadArea.style.borderColor = 'var(--success-color)';
+                uploadArea.style.backgroundColor = 'rgba(78, 205, 196, 0.05)';
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+    
+    // Drag and drop
+    uploadArea.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        uploadArea.style.borderColor = 'var(--primary-color)';
+        uploadArea.style.backgroundColor = 'rgba(102, 126, 234, 0.1)';
+    });
+    
+    uploadArea.addEventListener('dragleave', function(e) {
+        e.preventDefault();
+        uploadArea.style.borderColor = 'var(--primary-color)';
+        uploadArea.style.backgroundColor = 'rgba(102, 126, 234, 0.05)';
+    });
+    
+    uploadArea.addEventListener('drop', function(e) {
+        e.preventDefault();
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            fileInput.files = files;
+            fileInput.dispatchEvent(new Event('change'));
+        }
+    });
+    
+    // Character counter for prompt
+    const promptTextarea = document.getElementById('prompt');
+    const promptCount = document.getElementById('promptCount');
+    
+    if (promptTextarea && promptCount) {
+        promptTextarea.addEventListener('input', function() {
+            promptCount.textContent = this.value.length;
+            if (this.value.length > 350) {
+                promptCount.classList.add('text-warning');
+            } else {
+                promptCount.classList.remove('text-warning');
+            }
+        });
+        
+        // Initial count
+        promptCount.textContent = promptTextarea.value.length;
+    }
+    
+    // Range sliders with live updates
+    const strengthSlider = document.getElementById('strength');
+    const strengthValue = document.getElementById('strengthValue');
+    const guidanceSlider = document.getElementById('guidance');
+    const guidanceValue = document.getElementById('guidanceValue');
+    const stepsSlider = document.getElementById('steps');
+    const stepsValue = document.getElementById('stepsValue');
+    
+    if (strengthSlider && strengthValue) {
+        strengthSlider.addEventListener('input', function() {
+            strengthValue.textContent = this.value;
+        });
+    }
+    
+    if (guidanceSlider && guidanceValue) {
+        guidanceSlider.addEventListener('input', function() {
+            guidanceValue.textContent = this.value;
+        });
+    }
+    
+    if (stepsSlider && stepsValue) {
+        stepsSlider.addEventListener('input', function() {
+            stepsValue.textContent = this.value;
+        });
+    }
+    
+    // Quick transformation buttons
+    document.querySelectorAll('.quick-transform').forEach(button => {
+        button.addEventListener('click', function() {
+            const prompt = this.getAttribute('data-prompt');
+            document.getElementById('prompt').value = prompt;
+            document.getElementById('promptCount').textContent = prompt.length;
+            
+            // Add visual feedback
+            this.classList.add('btn-success');
+            this.classList.remove('btn-outline-success');
+            setTimeout(() => {
+                this.classList.remove('btn-success');
+                this.classList.add('btn-outline-success');
+            }, 500);
+        });
+    });
+}
+
+function clearImage() {
+    const fileInput = document.getElementById('input_image');
+    const uploadContent = document.querySelector('.upload-content');
+    const previewContainer = document.querySelector('.preview-container');
+    const transformBtn = document.getElementById('transformBtn');
+    const uploadArea = document.querySelector('.upload-area');
+    
+    fileInput.value = '';
+    uploadContent.style.display = 'block';
+    previewContainer.style.display = 'none';
+    transformBtn.disabled = true;
+    uploadArea.style.borderColor = 'var(--primary-color)';
+    uploadArea.style.backgroundColor = 'rgba(102, 126, 234, 0.05)';
+}
+
+function generateRandomSeed() {
+    const seed = Math.floor(Math.random() * 1000000);
+    document.getElementById('seed').value = seed;
+    
+    // Visual feedback
+    const button = event.target.closest('button');
+    const originalIcon = button.innerHTML;
+    button.innerHTML = '<i class="bi bi-check"></i>';
+    setTimeout(() => {
+        button.innerHTML = originalIcon;
+    }, 1000);
+}
+
+// Enhanced form submission
+document.getElementById('transformForm').addEventListener('submit', function(e) {
+    // Show status card
+    const statusCard = document.getElementById('statusCard');
+    if (statusCard) {
+        statusCard.style.display = 'block';
+        statusCard.scrollIntoView({ behavior: 'smooth' });
+    }
+    
+    // Simulate progress
+    simulateTransformProgress();
+});
+
+function simulateTransformProgress() {
+    const progressBar = document.getElementById('transformProgress');
+    const statusText = document.getElementById('statusText');
+    
+    if (!progressBar || !statusText) return;
+    
+    const stages = [
+        { progress: 20, text: 'Analyzing input image...' },
+        { progress: 40, text: 'Processing transformation prompt...' },
+        { progress: 60, text: 'Applying AI transformation...' },
+        { progress: 80, text: 'Refining details...' },
+        { progress: 100, text: 'Transformation complete!' }
+    ];
+    
+    let currentStage = 0;
+    
+    function updateProgress() {
+        if (currentStage < stages.length) {
+            const stage = stages[currentStage];
+            progressBar.style.width = stage.progress + '%';
+            statusText.textContent = stage.text;
+            currentStage++;
+            setTimeout(updateProgress, 1800);
+        }
+    }
+    
+    updateProgress();
+}
 </script>
 {% endblock %}
