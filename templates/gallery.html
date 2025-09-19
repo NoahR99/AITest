@@ -4,42 +4,272 @@
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2>
-        <i class="bi bi-collection"></i> Generated Files Gallery
-    </h2>
     <div>
-        <span class="badge bg-primary">{{ files|length }} files</span>
+        <h2>
+            <i class="bi bi-collection"></i> Generated Files Gallery
+        </h2>
+        <p class="text-muted mb-0">Browse and manage your AI-generated content</p>
+    </div>
+    <div class="d-flex align-items-center gap-3">
+        <span class="badge bg-primary fs-6">{{ files|length }} files</span>
+        <div class="btn-group" role="group" aria-label="View options">
+            <button type="button" class="btn btn-outline-secondary btn-sm active" onclick="setViewMode('grid')">
+                <i class="bi bi-grid-3x3-gap"></i>
+            </button>
+            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="setViewMode('list')">
+                <i class="bi bi-list"></i>
+            </button>
+        </div>
     </div>
 </div>
 
 {% if not files %}
 <div class="text-center py-5">
-    <i class="bi bi-image display-1 text-muted"></i>
+    <div class="mb-4">
+        <i class="bi bi-image display-1 text-muted"></i>
+    </div>
     <h4 class="mt-3 text-muted">No files generated yet</h4>
-    <p class="text-muted">Start creating some amazing AI-generated content!</p>
-    <a href="{{ url_for('index') }}" class="btn btn-primary">
-        <i class="bi bi-magic"></i> Start Creating
-    </a>
+    <p class="text-muted mb-4">Start creating some amazing AI-generated content!</p>
+    <div class="d-flex justify-content-center gap-3">
+        <a href="{{ url_for('text_to_image') }}" class="btn btn-primary">
+            <i class="bi bi-image"></i> Generate Images
+        </a>
+        <a href="{{ url_for('text_to_video') }}" class="btn btn-info">
+            <i class="bi bi-camera-video"></i> Generate Videos
+        </a>
+    </div>
 </div>
 {% else %}
-<div class="file-grid">
+<!-- Filter and Sort Controls -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="input-group">
+            <span class="input-group-text"><i class="bi bi-search"></i></span>
+            <input type="text" class="form-control" id="searchFiles" placeholder="Search files...">
+        </div>
+    </div>
+    <div class="col-md-3">
+        <select class="form-select" id="filterType">
+            <option value="all">All Types</option>
+            <option value="image">Images Only</option>
+            <option value="video">Videos Only</option>
+        </select>
+    </div>
+    <div class="col-md-3">
+        <select class="form-select" id="sortOrder">
+            <option value="newest">Newest First</option>
+            <option value="oldest">Oldest First</option>
+            <option value="name">Name A-Z</option>
+            <option value="name-desc">Name Z-A</option>
+        </select>
+    </div>
+</div>
+
+<div class="file-grid" id="fileGrid">
     {% for file in files %}
-    <div class="file-card">
+    <div class="file-card" data-type="{{ file.type }}" data-name="{{ file.name.lower() }}">
         {% if file.type == 'video' %}
-        <video controls style="width: 100%; height: 200px; object-fit: cover;">
+        <video controls class="file-media">
             <source src="{{ url_for('serve_output', filename=file.path) }}" type="video/mp4">
             Your browser does not support the video tag.
         </video>
         {% else %}
         <img src="{{ url_for('serve_output', filename=file.path) }}" 
-             alt="{{ file.name }}" style="width: 100%; height: 200px; object-fit: cover;">
+             alt="{{ file.name }}" class="file-media preview-image">
         {% endif %}
-        <div class="p-2">
-            <small class="text-muted d-block">{{ file.name }}</small>
-            <span class="badge bg-secondary">{{ file.type }}</span>
+        <div class="file-info p-3">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+                <small class="text-muted d-block file-name" title="{{ file.name }}">{{ file.name }}</small>
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-three-dots"></i>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{{ url_for('serve_output', filename=file.path) }}" download>
+                            <i class="bi bi-download me-2"></i>Download
+                        </a></li>
+                        <li><a class="dropdown-item copy-filename" href="#" data-filename="{{ file.name }}">
+                            <i class="bi bi-clipboard me-2"></i>Copy Name
+                        </a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-danger" href="#" onclick="deleteFile('{{ file.name }}')">
+                            <i class="bi bi-trash me-2"></i>Delete
+                        </a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="d-flex justify-content-between align-items-center">
+                <span class="badge bg-{{ 'primary' if file.type == 'image' else 'info' }}">{{ file.type }}</span>
+                <small class="text-muted">{{ file.name.split('_')[0] if '_' in file.name else 'unknown' }}</small>
+            </div>
         </div>
     </div>
     {% endfor %}
 </div>
+
+<!-- Pagination would go here if needed -->
+<div class="text-center mt-4" id="loadMore" style="display: none;">
+    <button class="btn btn-outline-primary">
+        <i class="bi bi-arrow-down"></i> Load More
+    </button>
+</div>
+
 {% endif %}
+
+<script>
+// Gallery functionality
+document.addEventListener('DOMContentLoaded', function() {
+    initializeGallery();
+});
+
+function initializeGallery() {
+    const searchInput = document.getElementById('searchFiles');
+    const filterType = document.getElementById('filterType');
+    const sortOrder = document.getElementById('sortOrder');
+    
+    if (searchInput) {
+        searchInput.addEventListener('input', filterAndSortFiles);
+    }
+    if (filterType) {
+        filterType.addEventListener('change', filterAndSortFiles);
+    }
+    if (sortOrder) {
+        sortOrder.addEventListener('change', filterAndSortFiles);
+    }
+    
+    // Add file count update
+    updateFileCount();
+}
+
+function filterAndSortFiles() {
+    const searchTerm = document.getElementById('searchFiles')?.value.toLowerCase() || '';
+    const typeFilter = document.getElementById('filterType')?.value || 'all';
+    const sortBy = document.getElementById('sortOrder')?.value || 'newest';
+    
+    const fileCards = Array.from(document.querySelectorAll('.file-card'));
+    
+    // Filter files
+    fileCards.forEach(card => {
+        const fileName = card.getAttribute('data-name');
+        const fileType = card.getAttribute('data-type');
+        
+        const matchesSearch = fileName.includes(searchTerm);
+        const matchesType = typeFilter === 'all' || fileType === typeFilter;
+        
+        card.style.display = matchesSearch && matchesType ? 'block' : 'none';
+    });
+    
+    // Sort visible files
+    const visibleCards = fileCards.filter(card => card.style.display !== 'none');
+    const fileGrid = document.getElementById('fileGrid');
+    
+    visibleCards.sort((a, b) => {
+        const aName = a.getAttribute('data-name');
+        const bName = b.getAttribute('data-name');
+        
+        switch(sortBy) {
+            case 'name':
+                return aName.localeCompare(bName);
+            case 'name-desc':
+                return bName.localeCompare(aName);
+            case 'oldest':
+                return aName.localeCompare(bName); // Assuming filename contains timestamp
+            case 'newest':
+            default:
+                return bName.localeCompare(aName);
+        }
+    });
+    
+    // Re-append sorted cards
+    visibleCards.forEach(card => fileGrid.appendChild(card));
+    
+    updateFileCount();
+}
+
+function updateFileCount() {
+    const visibleCards = document.querySelectorAll('.file-card[style=""], .file-card:not([style*="none"])').length;
+    const totalCards = document.querySelectorAll('.file-card').length;
+    const badge = document.querySelector('.badge.bg-primary');
+    
+    if (badge) {
+        badge.textContent = visibleCards < totalCards ? 
+            `${visibleCards}/${totalCards} files` : 
+            `${totalCards} files`;
+    }
+}
+
+function setViewMode(mode) {
+    const fileGrid = document.getElementById('fileGrid');
+    const buttons = document.querySelectorAll('[onclick^="setViewMode"]');
+    
+    buttons.forEach(btn => btn.classList.remove('active'));
+    event.target.classList.add('active');
+    
+    if (mode === 'list') {
+        fileGrid.className = 'file-list';
+        fileGrid.style.display = 'flex';
+        fileGrid.style.flexDirection = 'column';
+        fileGrid.style.gap = '1rem';
+    } else {
+        fileGrid.className = 'file-grid';
+        fileGrid.style.display = 'grid';
+        fileGrid.style.flexDirection = '';
+    }
+}
+
+function deleteFile(filename) {
+    if (confirm(`Are you sure you want to delete "${filename}"?`)) {
+        // In a real implementation, this would make an API call to delete the file
+        showToast(`File "${filename}" would be deleted`, 'info');
+    }
+}
+
+// Enhanced file card interactions
+document.addEventListener('click', function(e) {
+    if (e.target.closest('.file-card')) {
+        const card = e.target.closest('.file-card');
+        if (!e.target.closest('.dropdown') && !e.target.closest('.copy-filename')) {
+            // Add selection highlight
+            card.classList.toggle('selected');
+        }
+    }
+});
+
+// Add CSS for selected state and list view
+const style = document.createElement('style');
+style.textContent = `
+    .file-card.selected {
+        transform: translateY(-8px) scale(1.02);
+        box-shadow: 0 15px 30px rgba(102, 126, 234, 0.3);
+        border: 2px solid var(--primary-color);
+    }
+    
+    .file-list .file-card {
+        display: flex;
+        flex-direction: row;
+        max-width: none;
+    }
+    
+    .file-list .file-media {
+        width: 150px;
+        height: 100px;
+        flex-shrink: 0;
+    }
+    
+    .file-list .file-info {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+    
+    .file-name {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 200px;
+    }
+`;
+document.head.appendChild(style);
+</script>
 {% endblock %}

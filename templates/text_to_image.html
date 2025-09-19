@@ -10,81 +10,191 @@
                 <h5 class="mb-0">
                     <i class="bi bi-image"></i> Text to Image Generation
                 </h5>
+                <small class="text-muted">Transform your ideas into stunning visuals with AI</small>
             </div>
             <div class="card-body">
-                <form method="POST">
-                    <div class="mb-3">
-                        <label for="prompt" class="form-label">Prompt *</label>
-                        <textarea class="form-control" id="prompt" name="prompt" rows="3" required
-                                  placeholder="Describe the image you want to generate...">{{ prompt or '' }}</textarea>
+                <form method="POST" id="generateForm">
+                    <div class="mb-4">
+                        <label for="prompt" class="form-label">
+                            <i class="bi bi-pencil me-1"></i>Prompt *
+                        </label>
+                        <div class="position-relative">
+                            <textarea class="form-control" id="prompt" name="prompt" rows="3" required
+                                      placeholder="Describe the image you want to generate... (e.g., 'A majestic dragon flying over a mountain at sunset, digital art, highly detailed')">{{ prompt or '' }}</textarea>
+                            <div class="form-text">
+                                <i class="bi bi-info-circle me-1"></i>
+                                Be specific and descriptive for better results. Characters: <span id="promptCount">0</span>/500
+                            </div>
+                        </div>
                     </div>
                     
-                    <div class="mb-3">
-                        <label for="negative_prompt" class="form-label">Negative Prompt</label>
+                    <div class="mb-4">
+                        <label for="negative_prompt" class="form-label">
+                            <i class="bi bi-x-circle me-1"></i>Negative Prompt
+                        </label>
                         <textarea class="form-control" id="negative_prompt" name="negative_prompt" rows="2"
-                                  placeholder="Describe what you don't want in the image..."></textarea>
-                    </div>
-                    
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="width" class="form-label">Width</label>
-                                <select class="form-select" id="width" name="width">
-                                    <option value="512" selected>512px</option>
-                                    <option value="768">768px</option>
-                                    <option value="1024">1024px</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="height" class="form-label">Height</label>
-                                <select class="form-select" id="height" name="height">
-                                    <option value="512" selected>512px</option>
-                                    <option value="768">768px</option>
-                                    <option value="1024">1024px</option>
-                                </select>
-                            </div>
+                                  placeholder="Describe what you don't want in the image... (e.g., 'blurry, low quality, distorted')"></textarea>
+                        <div class="form-text">
+                            <i class="bi bi-lightbulb me-1"></i>
+                            Use this to exclude unwanted elements from your image
                         </div>
                     </div>
                     
-                    <div class="row">
-                        <div class="col-md-4">
-                            <div class="mb-3">
-                                <label for="steps" class="form-label">Steps</label>
-                                <input type="number" class="form-control" id="steps" name="steps" 
-                                       value="20" min="1" max="50">
-                            </div>
+                    <!-- Aspect Ratio Presets -->
+                    <div class="mb-4">
+                        <label class="form-label">
+                            <i class="bi bi-aspect-ratio me-1"></i>Aspect Ratio
+                        </label>
+                        <div class="btn-group w-100" role="group" aria-label="Aspect ratio selection">
+                            <input type="radio" class="btn-check" name="aspect_ratio" id="square" value="1:1" checked>
+                            <label class="btn btn-outline-primary" for="square">1:1<br><small>Square</small></label>
+                            
+                            <input type="radio" class="btn-check" name="aspect_ratio" id="portrait" value="3:4">
+                            <label class="btn btn-outline-primary" for="portrait">3:4<br><small>Portrait</small></label>
+                            
+                            <input type="radio" class="btn-check" name="aspect_ratio" id="landscape" value="4:3">
+                            <label class="btn btn-outline-primary" for="landscape">4:3<br><small>Landscape</small></label>
+                            
+                            <input type="radio" class="btn-check" name="aspect_ratio" id="widescreen" value="16:9">
+                            <label class="btn btn-outline-primary" for="widescreen">16:9<br><small>Widescreen</small></label>
                         </div>
-                        <div class="col-md-4">
-                            <div class="mb-3">
-                                <label for="guidance" class="form-label">Guidance Scale</label>
-                                <input type="number" class="form-control" id="guidance" name="guidance" 
-                                       value="7.5" min="1" max="20" step="0.5">
+                    </div>
+                    
+                    <!-- Advanced Settings Collapsible -->
+                    <div class="mb-4">
+                        <button class="btn btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#advancedSettings" aria-expanded="false" aria-controls="advancedSettings">
+                            <i class="bi bi-gear me-1"></i>Advanced Settings
+                        </button>
+                    </div>
+                    
+                    <div class="collapse" id="advancedSettings">
+                        <div class="card card-body mb-4">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="steps" class="form-label">
+                                            <i class="bi bi-arrow-repeat me-1"></i>Steps
+                                            <span class="badge bg-info ms-1">Quality</span>
+                                        </label>
+                                        <input type="range" class="form-range" id="steps" name="steps" 
+                                               value="20" min="10" max="50" step="5">
+                                        <div class="d-flex justify-content-between">
+                                            <small class="text-muted">10 (Fast)</small>
+                                            <small class="text-primary fw-bold" id="stepsValue">20</small>
+                                            <small class="text-muted">50 (Best)</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="guidance" class="form-label">
+                                            <i class="bi bi-compass me-1"></i>Guidance Scale
+                                            <span class="badge bg-warning ms-1">Creativity</span>
+                                        </label>
+                                        <input type="range" class="form-range" id="guidance" name="guidance" 
+                                               value="7.5" min="1" max="20" step="0.5">
+                                        <div class="d-flex justify-content-between">
+                                            <small class="text-muted">1 (Creative)</small>
+                                            <small class="text-primary fw-bold" id="guidanceValue">7.5</small>
+                                            <small class="text-muted">20 (Strict)</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="num_images" class="form-label">
+                                            <i class="bi bi-images me-1"></i>Number of Images
+                                        </label>
+                                        <select class="form-select" id="num_images" name="num_images">
+                                            <option value="1" selected>1 Image</option>
+                                            <option value="2">2 Images</option>
+                                            <option value="4">4 Images</option>
+                                        </select>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="mb-3">
-                                <label for="num_images" class="form-label">Number of Images</label>
-                                <select class="form-select" id="num_images" name="num_images">
-                                    <option value="1" selected>1</option>
-                                    <option value="2">2</option>
-                                    <option value="4">4</option>
-                                </select>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="seed" class="form-label">
+                                            <i class="bi bi-shuffle me-1"></i>Seed (optional)
+                                        </label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" id="seed" name="seed" 
+                                                   placeholder="Leave empty for random">
+                                            <button class="btn btn-outline-secondary" type="button" onclick="generateRandomSeed()">
+                                                <i class="bi bi-dice-3"></i>
+                                            </button>
+                                        </div>
+                                        <div class="form-text">Same seed = reproducible results</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="style" class="form-label">
+                                            <i class="bi bi-palette me-1"></i>Style Preset
+                                        </label>
+                                        <select class="form-select" id="style" name="style">
+                                            <option value="">No specific style</option>
+                                            <option value="photorealistic">Photorealistic</option>
+                                            <option value="digital_art">Digital Art</option>
+                                            <option value="oil_painting">Oil Painting</option>
+                                            <option value="watercolor">Watercolor</option>
+                                            <option value="anime">Anime/Manga</option>
+                                            <option value="cyberpunk">Cyberpunk</option>
+                                            <option value="fantasy">Fantasy</option>
+                                            <option value="minimalist">Minimalist</option>
+                                        </select>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                     
-                    <div class="mb-3">
-                        <label for="seed" class="form-label">Seed (optional)</label>
-                        <input type="number" class="form-control" id="seed" name="seed" 
-                               placeholder="Leave empty for random seed">
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="bi bi-magic"></i> Generate Images
+                        </button>
                     </div>
-                    
-                    <button type="submit" class="btn btn-primary">
-                        <i class="bi bi-magic"></i> Generate Images
-                    </button>
                 </form>
+            </div>
+        </div>
+        
+        <!-- Quick Prompts Section -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="bi bi-lightning"></i> Quick Prompts
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row g-2">
+                    <div class="col-md-6">
+                        <button type="button" class="btn btn-outline-primary btn-sm w-100 quick-prompt" 
+                                data-prompt="A majestic mountain landscape at sunset, golden hour, 4K, photorealistic">
+                            🏔️ Mountain Landscape
+                        </button>
+                    </div>
+                    <div class="col-md-6">
+                        <button type="button" class="btn btn-outline-primary btn-sm w-100 quick-prompt" 
+                                data-prompt="Portrait of a robot in cyberpunk style, neon lighting, futuristic">
+                            🤖 Cyberpunk Robot
+                        </button>
+                    </div>
+                    <div class="col-md-6">
+                        <button type="button" class="btn btn-outline-primary btn-sm w-100 quick-prompt" 
+                                data-prompt="A cat wearing a wizard hat, magical, fantasy art, digital painting">
+                            🐱 Wizard Cat
+                        </button>
+                    </div>
+                    <div class="col-md-6">
+                        <button type="button" class="btn btn-outline-primary btn-sm w-100 quick-prompt" 
+                                data-prompt="Ocean waves crashing on a beach, golden hour, tropical paradise">
+                            🌊 Ocean Beach
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -93,17 +203,87 @@
         <div class="card">
             <div class="card-header">
                 <h6 class="mb-0">
-                    <i class="bi bi-lightbulb"></i> Tips
+                    <i class="bi bi-lightbulb"></i> Pro Tips & Guide
                 </h6>
             </div>
             <div class="card-body">
-                <ul class="list-unstyled">
-                    <li><strong>Prompt:</strong> Be specific and descriptive</li>
-                    <li><strong>Negative:</strong> Exclude unwanted elements</li>
-                    <li><strong>Steps:</strong> More steps = better quality (slower)</li>
-                    <li><strong>Guidance:</strong> Higher = follows prompt more closely</li>
-                    <li><strong>Seed:</strong> Same seed = reproducible results</li>
-                </ul>
+                <div class="accordion" id="tipsAccordion">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" 
+                                    data-bs-target="#promptTips" aria-expanded="true" aria-controls="promptTips">
+                                <i class="bi bi-pencil me-2"></i>Writing Great Prompts
+                            </button>
+                        </h2>
+                        <div id="promptTips" class="accordion-collapse collapse show" data-bs-parent="#tipsAccordion">
+                            <div class="accordion-body">
+                                <ul class="list-unstyled">
+                                    <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Be specific about details</li>
+                                    <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Include lighting conditions</li>
+                                    <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Mention art style or medium</li>
+                                    <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Add quality descriptors</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" 
+                                    data-bs-target="#parameterTips" aria-expanded="false" aria-controls="parameterTips">
+                                <i class="bi bi-sliders me-2"></i>Parameter Settings
+                            </button>
+                        </h2>
+                        <div id="parameterTips" class="accordion-collapse collapse" data-bs-parent="#tipsAccordion">
+                            <div class="accordion-body">
+                                <strong>Steps:</strong> More steps = better quality but slower<br>
+                                <strong>Guidance:</strong> Higher = follows prompt more closely<br>
+                                <strong>Seed:</strong> Same seed = reproducible results<br>
+                                <strong>Negative:</strong> Exclude unwanted elements
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" 
+                                    data-bs-target="#examplePrompts" aria-expanded="false" aria-controls="examplePrompts">
+                                <i class="bi bi-collection me-2"></i>Example Prompts
+                            </button>
+                        </h2>
+                        <div id="examplePrompts" class="accordion-collapse collapse" data-bs-parent="#tipsAccordion">
+                            <div class="accordion-body">
+                                <div class="mb-3">
+                                    <strong>Portrait:</strong><br>
+                                    <small class="text-muted">"Professional headshot of a business woman, studio lighting, high resolution"</small>
+                                </div>
+                                <div class="mb-3">
+                                    <strong>Landscape:</strong><br>
+                                    <small class="text-muted">"Vast desert with sand dunes at sunrise, cinematic, epic scale"</small>
+                                </div>
+                                <div class="mb-3">
+                                    <strong>Abstract:</strong><br>
+                                    <small class="text-muted">"Colorful geometric patterns, modern art, vibrant colors, symmetrical"</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Generation Status Card -->
+        <div class="card mt-3" id="statusCard" style="display: none;">
+            <div class="card-body text-center">
+                <div class="spinner-border text-primary mb-3" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <h6>Generating your images...</h6>
+                <div class="progress mb-2">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                         role="progressbar" style="width: 0%" id="generationProgress"></div>
+                </div>
+                <small class="text-muted" id="statusText">Initializing...</small>
             </div>
         </div>
     </div>
@@ -123,8 +303,14 @@
                 <div class="file-card">
                     <img src="{{ url_for('serve_output', filename=image) }}" 
                          alt="Generated image" class="preview-image">
-                    <div class="p-2">
-                        <small class="text-muted">{{ image }}</small>
+                    <div class="p-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">{{ image }}</small>
+                            <a href="{{ url_for('serve_output', filename=image) }}" download 
+                               class="btn btn-outline-primary btn-sm">
+                                <i class="bi bi-download"></i>
+                            </a>
+                        </div>
                     </div>
                 </div>
                 {% endfor %}
@@ -133,4 +319,189 @@
     </div>
 </div>
 {% endif %}
+
+<script>
+// Text to Image specific functionality
+document.addEventListener('DOMContentLoaded', function() {
+    initializeTextToImage();
+});
+
+function initializeTextToImage() {
+    // Character counter for prompt
+    const promptTextarea = document.getElementById('prompt');
+    const promptCount = document.getElementById('promptCount');
+    
+    if (promptTextarea && promptCount) {
+        promptTextarea.addEventListener('input', function() {
+            promptCount.textContent = this.value.length;
+            if (this.value.length > 400) {
+                promptCount.classList.add('text-warning');
+            } else {
+                promptCount.classList.remove('text-warning');
+            }
+        });
+        
+        // Initial count
+        promptCount.textContent = promptTextarea.value.length;
+    }
+    
+    // Range sliders with live updates
+    const stepsSlider = document.getElementById('steps');
+    const stepsValue = document.getElementById('stepsValue');
+    const guidanceSlider = document.getElementById('guidance');
+    const guidanceValue = document.getElementById('guidanceValue');
+    
+    if (stepsSlider && stepsValue) {
+        stepsSlider.addEventListener('input', function() {
+            stepsValue.textContent = this.value;
+        });
+    }
+    
+    if (guidanceSlider && guidanceValue) {
+        guidanceSlider.addEventListener('input', function() {
+            guidanceValue.textContent = this.value;
+        });
+    }
+    
+    // Quick prompt buttons
+    document.querySelectorAll('.quick-prompt').forEach(button => {
+        button.addEventListener('click', function() {
+            const prompt = this.getAttribute('data-prompt');
+            document.getElementById('prompt').value = prompt;
+            document.getElementById('promptCount').textContent = prompt.length;
+            
+            // Add visual feedback
+            this.classList.add('btn-primary');
+            this.classList.remove('btn-outline-primary');
+            setTimeout(() => {
+                this.classList.remove('btn-primary');
+                this.classList.add('btn-outline-primary');
+            }, 500);
+        });
+    });
+    
+    // Aspect ratio handling
+    document.querySelectorAll('input[name="aspect_ratio"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            updateDimensions(this.value);
+        });
+    });
+    
+    // Style preset handling
+    const styleSelect = document.getElementById('style');
+    if (styleSelect) {
+        styleSelect.addEventListener('change', function() {
+            if (this.value) {
+                addStyleToPrompt(this.value);
+            }
+        });
+    }
+}
+
+function generateRandomSeed() {
+    const seed = Math.floor(Math.random() * 1000000);
+    document.getElementById('seed').value = seed;
+    
+    // Visual feedback
+    const button = event.target.closest('button');
+    const originalIcon = button.innerHTML;
+    button.innerHTML = '<i class="bi bi-check"></i>';
+    setTimeout(() => {
+        button.innerHTML = originalIcon;
+    }, 1000);
+}
+
+function updateDimensions(aspectRatio) {
+    const [width, height] = aspectRatio.split(':').map(Number);
+    
+    // Calculate appropriate dimensions based on aspect ratio
+    let newWidth, newHeight;
+    
+    if (width === height) { // Square
+        newWidth = newHeight = 512;
+    } else if (width > height) { // Landscape
+        newWidth = 768;
+        newHeight = Math.round(768 * height / width);
+    } else { // Portrait
+        newWidth = Math.round(512 * width / height);
+        newHeight = 768;
+    }
+    
+    // Round to nearest valid dimension
+    const validDimensions = [512, 768, 1024];
+    newWidth = validDimensions.reduce((prev, curr) => 
+        Math.abs(curr - newWidth) < Math.abs(prev - newWidth) ? curr : prev
+    );
+    newHeight = validDimensions.reduce((prev, curr) => 
+        Math.abs(curr - newHeight) < Math.abs(prev - newHeight) ? curr : prev
+    );
+    
+    // Update hidden inputs or form data (in a real implementation)
+    console.log(`Updated dimensions: ${newWidth}x${newHeight}`);
+}
+
+function addStyleToPrompt(style) {
+    const promptTextarea = document.getElementById('prompt');
+    const currentPrompt = promptTextarea.value;
+    
+    const styleMap = {
+        'photorealistic': ', photorealistic, high quality, detailed',
+        'digital_art': ', digital art, concept art, trending on artstation',
+        'oil_painting': ', oil painting, classical art style, textured brushstrokes',
+        'watercolor': ', watercolor painting, soft colors, artistic',
+        'anime': ', anime style, manga art, cel shading',
+        'cyberpunk': ', cyberpunk style, neon colors, futuristic',
+        'fantasy': ', fantasy art, magical, epic, detailed',
+        'minimalist': ', minimalist, clean, simple, modern'
+    };
+    
+    const styleAddition = styleMap[style];
+    if (styleAddition && !currentPrompt.includes(styleAddition)) {
+        promptTextarea.value = currentPrompt + styleAddition;
+        document.getElementById('promptCount').textContent = promptTextarea.value.length;
+    }
+}
+
+// Enhanced form submission
+document.getElementById('generateForm').addEventListener('submit', function(e) {
+    // Show status card
+    const statusCard = document.getElementById('statusCard');
+    if (statusCard) {
+        statusCard.style.display = 'block';
+        statusCard.scrollIntoView({ behavior: 'smooth' });
+    }
+    
+    // Simulate progress
+    simulateGenerationProgress();
+});
+
+function simulateGenerationProgress() {
+    const progressBar = document.getElementById('generationProgress');
+    const statusText = document.getElementById('statusText');
+    
+    if (!progressBar || !statusText) return;
+    
+    const stages = [
+        { progress: 20, text: 'Loading AI model...' },
+        { progress: 40, text: 'Processing your prompt...' },
+        { progress: 60, text: 'Generating image...' },
+        { progress: 80, text: 'Applying finishing touches...' },
+        { progress: 100, text: 'Complete!' }
+    ];
+    
+    let currentStage = 0;
+    
+    function updateProgress() {
+        if (currentStage < stages.length) {
+            const stage = stages[currentStage];
+            progressBar.style.width = stage.progress + '%';
+            statusText.textContent = stage.text;
+            currentStage++;
+            setTimeout(updateProgress, 1500);
+        }
+    }
+    
+    updateProgress();
+}
+</script>
 {% endblock %}
