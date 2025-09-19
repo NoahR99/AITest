@@ -5,10 +5,10 @@
 echo "🤖 AI Generator Setup Script"
 echo "=============================="
 
-# Check if Python 3.8+ is installed
+# Check if Python 3.11+ is installed
 python_version=$(python3 --version 2>/dev/null | cut -d' ' -f2 | cut -d'.' -f1-2)
 if [ -z "$python_version" ]; then
-    echo "❌ Python 3 is not installed. Please install Python 3.8 or higher."
+    echo "❌ Python 3 is not installed. Please install Python 3.11 or higher."
     exit 1
 fi
 

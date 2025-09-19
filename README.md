@@ -14,7 +14,7 @@ An AI-powered application that generates stunning images and videos from text pr
 ## Quick Start
 
 ### Prerequisites
-- Python 3.8 or higher
+- Python 3.11 or higher
 - CUDA-compatible GPU (recommended) or ARM/Snapdragon processor (CPU mode)
 - At least 10GB of free disk space (for model downloads)
 - Stable internet connection for initial model downloads
@@ -132,7 +132,7 @@ python cli.py --help
 ## Windows-Specific Setup
 
 ### Prerequisites for Windows
-- **Python 3.8+**: Download from [python.org](https://www.python.org/downloads/)
+- **Python 3.11+**: Download from [python.org](https://www.python.org/downloads/)
   - ✅ Make sure to check "Add Python to PATH" during installation
 - **Git**: Download from [git-scm.com](https://git-scm.com/download/win)
 - **Visual C++ Redistributable** (usually included with Python)
