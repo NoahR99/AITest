@@ -5,24 +5,24 @@
 {% block content %}
 <div class="row">
     <div class="col-12">
-        <div class="jumbotron bg-light p-5 rounded-3 mb-4">
+        <div class="jumbotron">
             <h1 class="display-4">
                 <i class="bi bi-magic"></i> AI Generator
             </h1>
-            <p class="lead">Generate stunning images and videos using the power of AI. Create content from text prompts or transform existing images.</p>
+            <p class="lead">Generate stunning images and videos using the power of AI. Create content from text prompts or transform existing images with cutting-edge artificial intelligence.</p>
             <hr class="my-4">
-            <p>Choose from the options below to start creating amazing AI-generated content.</p>
+            <p>Choose from the options below to start creating amazing AI-generated content. Each tool is designed to help you bring your creative vision to life.</p>
         </div>
     </div>
 </div>
 
 <div class="row g-4">
     <div class="col-md-4">
-        <div class="card h-100">
+        <div class="card feature-card h-100">
             <div class="card-body text-center">
                 <i class="bi bi-image display-1 text-primary mb-3"></i>
                 <h5 class="card-title">Text to Image</h5>
-                <p class="card-text">Generate beautiful images from your text descriptions using advanced AI models.</p>
+                <p class="card-text">Generate beautiful, high-quality images from your text descriptions using state-of-the-art AI models like DALL-E and Stable Diffusion.</p>
                 <a href="{{ url_for('text_to_image') }}" class="btn btn-primary">
                     <i class="bi bi-arrow-right"></i> Start Creating
                 </a>
@@ -31,11 +31,11 @@
     </div>
     
     <div class="col-md-4">
-        <div class="card h-100">
+        <div class="card feature-card h-100">
             <div class="card-body text-center">
                 <i class="bi bi-arrow-repeat display-1 text-success mb-3"></i>
                 <h5 class="card-title">Image to Image</h5>
-                <p class="card-text">Transform existing images with AI by providing new text prompts and style guidance.</p>
+                <p class="card-text">Transform and enhance existing images with AI by providing new text prompts, style guidance, and creative modifications.</p>
                 <a href="{{ url_for('image_to_image') }}" class="btn btn-success">
                     <i class="bi bi-arrow-right"></i> Transform Images
                 </a>
@@ -44,11 +44,11 @@
     </div>
     
     <div class="col-md-4">
-        <div class="card h-100">
+        <div class="card feature-card h-100">
             <div class="card-body text-center">
                 <i class="bi bi-camera-video display-1 text-info mb-3"></i>
                 <h5 class="card-title">Text to Video</h5>
-                <p class="card-text">Create short video clips from text descriptions using cutting-edge video generation AI.</p>
+                <p class="card-text">Create short, engaging video clips from text descriptions using cutting-edge video generation AI technology.</p>
                 <a href="{{ url_for('text_to_video') }}" class="btn btn-info">
                     <i class="bi bi-arrow-right"></i> Generate Videos
                 </a>
@@ -62,37 +62,155 @@
         <div class="card">
             <div class="card-header">
                 <h5 class="mb-0">
-                    <i class="bi bi-info-circle"></i> Getting Started
+                    <i class="bi bi-info-circle"></i> Getting Started Guide
                 </h5>
             </div>
             <div class="card-body">
                 <div class="row">
                     <div class="col-md-6">
-                        <h6>💡 Tips for Better Results:</h6>
-                        <ul>
-                            <li>Be specific and descriptive in your prompts</li>
-                            <li>Use negative prompts to exclude unwanted elements</li>
-                            <li>Experiment with different guidance scales and steps</li>
-                            <li>Set a seed for reproducible results</li>
+                        <h6><i class="bi bi-lightbulb text-warning"></i> Tips for Better Results:</h6>
+                        <ul class="list-unstyled">
+                            <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Be specific and descriptive in your prompts</li>
+                            <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Use negative prompts to exclude unwanted elements</li>
+                            <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Experiment with different guidance scales and steps</li>
+                            <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Set a seed for reproducible results</li>
+                            <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Try different aspect ratios for varied compositions</li>
                         </ul>
                     </div>
                     <div class="col-md-6">
-                        <h6>📚 Example Prompts:</h6>
-                        <ul>
-                            <li>"A majestic mountain landscape at sunset"</li>
-                            <li>"Portrait of a robot in cyberpunk style"</li>
-                            <li>"A cat wearing a wizard hat, digital art"</li>
-                            <li>"Ocean waves crashing on a beach, 4K"</li>
+                        <h6><i class="bi bi-palette text-primary"></i> Example Prompts:</h6>
+                        <ul class="list-unstyled">
+                            <li class="mb-2"><span class="badge bg-primary me-2">Landscape</span>"A majestic mountain landscape at sunset, 4K, photorealistic"</li>
+                            <li class="mb-2"><span class="badge bg-secondary me-2">Portrait</span>"Portrait of a robot in cyberpunk style, neon lighting"</li>
+                            <li class="mb-2"><span class="badge bg-success me-2">Fantasy</span>"A cat wearing a wizard hat, digital art, magical"</li>
+                            <li class="mb-2"><span class="badge bg-info me-2">Nature</span>"Ocean waves crashing on a beach, golden hour"</li>
+                            <li class="mb-2"><span class="badge bg-warning me-2">Abstract</span>"Colorful geometric patterns, modern art style"</li>
                         </ul>
                     </div>
                 </div>
-                <div class="mt-3">
-                    <a href="{{ url_for('gallery') }}" class="btn btn-outline-primary">
+                <div class="mt-4 text-center">
+                    <a href="{{ url_for('gallery') }}" class="btn btn-outline-primary me-3">
                         <i class="bi bi-collection"></i> View Gallery
+                    </a>
+                    <a href="#" class="btn btn-outline-secondary" onclick="showQuickStart()">
+                        <i class="bi bi-question-circle"></i> Quick Start Guide
                     </a>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Quick Features Overview -->
+<div class="row mt-5">
+    <div class="col-12">
+        <div class="text-center mb-4">
+            <h3 class="text-primary">Why Choose Our AI Generator?</h3>
+            <p class="text-muted">Experience the future of content creation with our advanced AI tools</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="text-center mb-4">
+            <div class="bg-primary bg-gradient rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                <i class="bi bi-lightning text-white fs-4"></i>
+            </div>
+            <h6>Lightning Fast</h6>
+            <p class="text-muted small">Generate high-quality content in seconds with our optimized AI models</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="text-center mb-4">
+            <div class="bg-success bg-gradient rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                <i class="bi bi-gem text-white fs-4"></i>
+            </div>
+            <h6>Premium Quality</h6>
+            <p class="text-muted small">State-of-the-art AI models deliver professional-grade results</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="text-center mb-4">
+            <div class="bg-info bg-gradient rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                <i class="bi bi-sliders text-white fs-4"></i>
+            </div>
+            <h6>Full Control</h6>
+            <p class="text-muted small">Fine-tune every aspect with advanced parameters and settings</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="text-center mb-4">
+            <div class="bg-warning bg-gradient rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                <i class="bi bi-shield-check text-white fs-4"></i>
+            </div>
+            <h6>Safe & Secure</h6>
+            <p class="text-muted small">Your content is processed securely with privacy protection</p>
+        </div>
+    </div>
+</div>
+
+<script>
+function showQuickStart() {
+    const modal = `
+        <div class="modal fade" id="quickStartModal" tabindex="-1" aria-labelledby="quickStartModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header bg-primary text-white">
+                        <h5 class="modal-title" id="quickStartModalLabel">
+                            <i class="bi bi-rocket"></i> Quick Start Guide
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <div class="card h-100 border-primary">
+                                    <div class="card-body text-center">
+                                        <i class="bi bi-1-circle text-primary fs-1 mb-2"></i>
+                                        <h6>Choose Your Tool</h6>
+                                        <p class="small text-muted">Select from Text-to-Image, Image-to-Image, or Text-to-Video generation</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="card h-100 border-success">
+                                    <div class="card-body text-center">
+                                        <i class="bi bi-2-circle text-success fs-1 mb-2"></i>
+                                        <h6>Write Your Prompt</h6>
+                                        <p class="small text-muted">Describe what you want to create in detail for best results</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="card h-100 border-info">
+                                    <div class="card-body text-center">
+                                        <i class="bi bi-3-circle text-info fs-1 mb-2"></i>
+                                        <h6>Generate & Download</h6>
+                                        <p class="small text-muted">Click generate and download your AI-created content</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle me-2"></i>
+                            <strong>Pro Tip:</strong> Use keyboard shortcuts! Press <kbd>Ctrl + Enter</kbd> to submit forms quickly, and <kbd>Ctrl + D</kbd> to toggle dark mode.
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <a href="{{ url_for('text_to_image') }}" class="btn btn-primary">Start Creating</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', modal);
+    const modalEl = new bootstrap.Modal(document.getElementById('quickStartModal'));
+    modalEl.show();
+    
+    // Clean up modal after it's hidden
+    document.getElementById('quickStartModal').addEventListener('hidden.bs.modal', function() {
+        this.remove();
+    });
+}
+</script>
 {% endblock %}
