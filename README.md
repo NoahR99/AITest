@@ -62,6 +62,43 @@ venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
+#### Option 3: CPU-Only Setup (No CUDA/GPU Required)
+
+If you don't have an NVIDIA GPU or want to avoid CUDA dependencies entirely:
+
+**Automated CPU-only setup:**
+```bash
+# Linux/Mac
+./setup.sh --cpu-only
+
+# Windows
+setup.bat --cpu-only
+```
+
+**Manual CPU-only setup:**
+```bash
+# 1. Create virtual environment
+python -m venv venv
+
+# 2. Activate environment
+# Linux/Mac: source venv/bin/activate
+# Windows: venv\Scripts\activate
+
+# 3. Install CPU-only dependencies
+pip install -r requirements-cpu.txt
+
+# 4. Set environment for CPU-only mode
+export FORCE_CPU=1  # Linux/Mac
+set FORCE_CPU=1     # Windows
+```
+
+**Key benefits of CPU-only mode:**
+- ✅ No CUDA or xformers dependencies
+- ✅ Works on any system with sufficient RAM
+- ✅ Compatible with ARM, x86, and x64 processors
+- ✅ Uses attention_slicing for memory efficiency
+- ✅ Avoids GPU driver compatibility issues
+
 ### Usage
 
 #### Web Interface (Recommended)

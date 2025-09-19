@@ -42,12 +42,35 @@ REM Upgrade pip
 echo 📈 Upgrading pip...
 python -m pip install --upgrade pip
 
-REM Install requirements based on architecture
+REM Install requirements based on architecture and user preference
 echo 📥 Installing requirements for %ARCH% architecture...
-if "%ARCH%"=="ARM64" (
+
+REM Check if user wants to force CPU-only mode
+set CPU_ONLY=N
+if "%1"=="--cpu-only" set CPU_ONLY=Y
+if "%1"=="--force-cpu" set CPU_ONLY=Y
+
+REM Prompt user for installation type on x64 systems
+if "%ARCH%"=="x64" (
+    if "%CPU_ONLY%"=="N" (
+        echo.
+        echo Choose installation type:
+        echo 1. CPU-only (compatible with all systems, no CUDA dependencies)
+        echo 2. Default (may include GPU support if available)
+        echo.
+        set /p CHOICE="Enter your choice (1 or 2): "
+        if "!CHOICE!"=="1" set CPU_ONLY=Y
+    )
+)
+
+if "%CPU_ONLY%"=="Y" (
+    echo 🔧 Using CPU-only packages (no CUDA dependencies)...
+    pip install -r requirements-cpu.txt
+) else if "%ARCH%"=="ARM64" (
     echo 🔧 Using ARM-optimized packages...
     pip install -r requirements-arm.txt
 ) else (
+    echo 🔧 Using default packages...
     pip install -r requirements.txt
 )
 
@@ -59,6 +82,8 @@ echo 1. Activate the virtual environment: venv\Scripts\activate.bat
 echo 2. Run the CLI tool: python cli.py --help
 echo 3. Run the web interface: python web_app.py
 echo.
+echo 💡 For CPU-only installation, run: setup.bat --cpu-only
+echo.
 echo Note: The first run will download AI models (several GB), so ensure you have:
 echo - A stable internet connection
 echo - At least 10GB of free disk space
@@ -66,7 +91,12 @@ if "%ARCH%"=="ARM64" (
     echo - ARM64 processor will use CPU-only mode (no CUDA support)
     echo - Consider increasing RAM for better performance on ARM systems
 ) else (
-    echo - GPU with CUDA support (recommended, but CPU mode also works)
+    if "%CPU_ONLY%"=="Y" (
+        echo - CPU-only mode enabled (no GPU acceleration)
+        echo - Consider setting FORCE_CPU=1 environment variable for consistency
+    ) else (
+        echo - GPU with CUDA support (recommended, but CPU mode also works)
+    )
 )
 echo.
 pause

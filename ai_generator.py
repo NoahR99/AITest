@@ -96,15 +96,30 @@ class AIGenerator:
             # Apply device-specific optimizations
             if self.device == "cuda":
                 try:
-                    pipeline.enable_xformers_memory_efficient_attention()
-                    logger.info("Enabled xformers memory efficient attention")
+                    # Try xformers first, but fall back to attention slicing if not available
+                    try:
+                        pipeline.enable_xformers_memory_efficient_attention()
+                        logger.info("Enabled xformers memory efficient attention")
+                    except (ImportError, AttributeError, Exception) as e:
+                        logger.warning(f"xformers not available, using attention slicing instead: {e}")
+                        pipeline.enable_attention_slicing()
+                        logger.info("Enabled attention slicing as fallback")
                 except Exception as e:
-                    logger.warning(f"Could not enable xformers: {e}")
+                    logger.warning(f"Could not enable memory optimizations: {e}")
             elif self.device == "mps":
-                # MPS-specific optimizations could go here
-                logger.info("Using MPS optimizations")
+                # MPS-specific optimizations - use attention slicing
+                try:
+                    pipeline.enable_attention_slicing()
+                    logger.info("Enabled MPS-friendly attention slicing")
+                except Exception as e:
+                    logger.warning(f"Could not enable MPS optimizations: {e}")
             else:
-                # CPU optimizations
+                # CPU optimizations - always use attention slicing for better memory efficiency
+                try:
+                    pipeline.enable_attention_slicing()
+                    logger.info("Enabled CPU-friendly attention slicing")
+                except Exception as e:
+                    logger.warning(f"Could not enable attention slicing: {e}")
                 logger.info("Using CPU optimizations - consider setting OMP_NUM_THREADS for better performance")
             
             self.pipelines[pipeline_type] = pipeline
