@@ -12,7 +12,7 @@ import numpy as np
 from pathlib import Path
 import logging
 from typing import Union, List, Optional, Tuple
-from config import MODELS, DEFAULT_PARAMS, DEVICE, OUTPUT_DIR
+from config import MODELS, DEFAULT_PARAMS, get_device, OUTPUT_DIR, DEVICE_CAPABILITIES
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -22,9 +22,29 @@ class AIGenerator:
     """Main class for AI-powered image and video generation."""
     
     def __init__(self):
-        self.device = DEVICE
+        self.device = get_device()
+        self.capabilities = DEVICE_CAPABILITIES
         self.pipelines = {}
         logger.info(f"Initializing AI Generator on device: {self.device}")
+        
+        # Log device capabilities for debugging
+        if self.device == "cuda":
+            logger.info(f"CUDA device count: {torch.cuda.device_count()}")
+            logger.info(f"CUDA device name: {torch.cuda.get_device_name(0) if torch.cuda.device_count() > 0 else 'N/A'}")
+        elif self.device == "mps":
+            logger.info("Using Apple Metal Performance Shaders")
+        else:
+            logger.info("Using CPU (consider ARM-optimized builds for better performance)")
+            import platform
+            logger.info(f"Architecture: {platform.machine()}")
+            logger.info(f"Processor: {platform.processor()}")
+            
+            # Log ARM-specific optimizations
+            if self.capabilities.get("arm_optimized"):
+                logger.info("ARM optimizations enabled")
+                logger.info(f"Recommended image size: {self.capabilities['recommended_size']}x{self.capabilities['recommended_size']}")
+                logger.info(f"Recommended inference steps: {self.capabilities['recommended_steps']}")
+                logger.info(f"Memory limit: {self.capabilities['max_memory_gb']}GB")
     
     def _load_pipeline(self, pipeline_type: str, model_id: str = None) -> None:
         """Load a specific pipeline if not already loaded."""
@@ -35,32 +55,57 @@ class AIGenerator:
         logger.info(f"Loading {pipeline_type} pipeline: {model_id}")
         
         try:
+            # Determine optimal data type based on device capabilities
+            if self.device == "cuda":
+                torch_dtype = torch.float16
+                variant = "fp16"
+            elif self.device == "mps":
+                torch_dtype = torch.float32  # MPS doesn't support float16 well
+                variant = None
+            else:  # CPU or other devices
+                torch_dtype = getattr(torch, self.capabilities.get("dtype", "float32"))
+                variant = None
+            
             if pipeline_type == "text_to_image":
                 pipeline = StableDiffusionPipeline.from_pretrained(
                     model_id,
-                    torch_dtype=torch.float16 if self.device == "cuda" else torch.float32,
+                    torch_dtype=torch_dtype,
+                    variant=variant,
                     safety_checker=None,
                     requires_safety_checker=False
                 )
             elif pipeline_type == "image_to_image":
                 pipeline = StableDiffusionImg2ImgPipeline.from_pretrained(
                     model_id,
-                    torch_dtype=torch.float16 if self.device == "cuda" else torch.float32,
+                    torch_dtype=torch_dtype,
+                    variant=variant,
                     safety_checker=None,
                     requires_safety_checker=False
                 )
             elif pipeline_type == "text_to_video":
                 pipeline = DiffusionPipeline.from_pretrained(
                     model_id,
-                    torch_dtype=torch.float16 if self.device == "cuda" else torch.float32,
-                    variant="fp16" if self.device == "cuda" else None
+                    torch_dtype=torch_dtype,
+                    variant=variant
                 )
             else:
                 raise ValueError(f"Unknown pipeline type: {pipeline_type}")
             
             pipeline = pipeline.to(self.device)
+            
+            # Apply device-specific optimizations
             if self.device == "cuda":
-                pipeline.enable_xformers_memory_efficient_attention()
+                try:
+                    pipeline.enable_xformers_memory_efficient_attention()
+                    logger.info("Enabled xformers memory efficient attention")
+                except Exception as e:
+                    logger.warning(f"Could not enable xformers: {e}")
+            elif self.device == "mps":
+                # MPS-specific optimizations could go here
+                logger.info("Using MPS optimizations")
+            else:
+                # CPU optimizations
+                logger.info("Using CPU optimizations - consider setting OMP_NUM_THREADS for better performance")
             
             self.pipelines[pipeline_type] = pipeline
             logger.info(f"Successfully loaded {pipeline_type} pipeline")
@@ -233,6 +278,13 @@ class AIGenerator:
         for pipeline in self.pipelines.values():
             del pipeline
         self.pipelines.clear()
-        if torch.cuda.is_available():
+        
+        # Clear device-specific memory
+        if self.device == "cuda" and torch.cuda.is_available():
             torch.cuda.empty_cache()
-        logger.info("Cleaned up GPU memory")
+            logger.info("Cleaned up CUDA memory")
+        elif self.device == "mps" and hasattr(torch.backends, 'mps') and torch.backends.mps.is_available():
+            torch.mps.empty_cache()
+            logger.info("Cleaned up MPS memory")
+        else:
+            logger.info("Cleaned up CPU memory")

@@ -15,7 +15,7 @@ An AI-powered application that generates stunning images and videos from text pr
 
 ### Prerequisites
 - Python 3.8 or higher
-- CUDA-compatible GPU (recommended, but CPU mode is also supported)
+- CUDA-compatible GPU (recommended) or ARM/Snapdragon processor (CPU mode)
 - At least 10GB of free disk space (for model downloads)
 - Stable internet connection for initial model downloads
 
@@ -133,6 +133,37 @@ python web_app.py
 3. **CUDA/GPU support on Windows**:
    - Install [CUDA Toolkit](https://developer.nvidia.com/cuda-downloads)
    - Install appropriate PyTorch version: `pip install torch torchvision --index-url https://download.pytorch.org/whl/cu118`
+
+### ARM/Snapdragon Support (Surface Laptop, etc.)
+
+**For Windows on ARM systems** (like Surface Laptop 7th Edition with Snapdragon processors):
+
+1. **Automatic Detection**: The setup script automatically detects ARM64 processors and uses optimized packages
+
+2. **Manual Setup for ARM**:
+```cmd
+git clone https://github.com/NoahR99/AITest.git
+cd AITest
+python -m venv venv
+venv\Scripts\activate
+pip install -r requirements-arm.txt
+```
+
+3. **ARM-Specific Considerations**:
+   - ✅ **CPU-only mode**: ARM processors don't support CUDA, so the app automatically uses CPU mode
+   - ✅ **Optimized packages**: ARM-specific PyTorch builds for better compatibility
+   - ⚠️ **Performance**: Slower than GPU-accelerated systems, but fully functional
+   - 💡 **Memory**: Ensure at least 16GB RAM for smooth operation on ARM systems
+
+4. **ARM Performance Tips**:
+   - Use smaller image sizes (512x512 instead of 1024x1024)
+   - Reduce inference steps (10-15 instead of 20-30)
+   - Close other applications to free up memory
+   - Set environment variable: `set OMP_NUM_THREADS=8` (adjust to your core count)
+
+**Tested ARM Systems:**
+- Microsoft Surface Laptop 7th Edition (Snapdragon X)
+- Other Windows on ARM devices
 
 ## Web Deployment
 
@@ -358,6 +389,12 @@ The application uses sensible defaults, but you can customize settings in `confi
 - NVIDIA GPU with 8GB+ VRAM
 - 20GB+ free disk space
 - CUDA 11.8 or higher
+
+### ARM/Snapdragon Systems (Surface Laptop, etc.)
+- 16GB+ RAM (recommended for good performance)
+- 20GB+ free disk space
+- CPU-only mode (ARM processors don't support CUDA)
+- Windows 11 on ARM or compatible ARM OS
 
 ## Supported Formats
 

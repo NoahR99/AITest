@@ -1,0 +1,30 @@
+# ARM-optimized requirements for Windows on ARM (Snapdragon, etc.)
+# This file is optimized for ARM64 processors like Snapdragon X
+
+# PyTorch CPU-only for ARM64
+torch>=2.0.0
+torchvision>=0.15.0
+torchaudio>=2.0.0
+
+# Core AI libraries
+diffusers>=0.21.0
+transformers>=4.30.0
+accelerate>=0.20.0
+
+# Image and video processing
+Pillow>=10.0.0
+opencv-python>=4.8.0
+numpy>=1.24.0
+
+# Utilities
+requests>=2.31.0
+tqdm>=4.65.0
+safetensors>=0.3.0
+
+# Web interface
+flask>=2.3.0
+python-dotenv>=1.0.0
+gunicorn>=21.0.0
+
+# Note: xformers is excluded as it may not be compatible with ARM64
+# Note: CUDA packages are excluded as ARM processors don't support CUDA

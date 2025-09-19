@@ -2,6 +2,10 @@
 
 import os
 from pathlib import Path
+from device_utils import detect_device_capabilities, get_optimized_model_params, setup_performance_environment
+
+# Setup performance environment early
+setup_performance_environment()
 
 # Base directories
 BASE_DIR = Path(__file__).parent.absolute()
@@ -31,23 +35,29 @@ MODELS = {
     }
 }
 
-# Generation parameters
-DEFAULT_PARAMS = {
-    "image": {
-        "width": 512,
-        "height": 512,
-        "num_inference_steps": 20,
-        "guidance_scale": 7.5,
-        "num_images": 1
-    },
-    "video": {
-        "width": 320,
-        "height": 320,
-        "num_frames": 16,
-        "num_inference_steps": 20,
-        "guidance_scale": 7.5
-    }
-}
-
 # Device configuration
-DEVICE = "cuda" if os.environ.get("CUDA_VISIBLE_DEVICES") else "cpu"
+def get_device():
+    """Detect the best available device for AI processing."""
+    import torch
+    
+    # Check if CUDA is explicitly disabled
+    if os.environ.get("CUDA_VISIBLE_DEVICES") == "":
+        return "cpu"
+    
+    # Check for CUDA availability (NVIDIA GPUs)
+    if torch.cuda.is_available():
+        return "cuda"
+    
+    # Check for Metal Performance Shaders (Apple Silicon)
+    if hasattr(torch.backends, 'mps') and torch.backends.mps.is_available():
+        return "mps"
+    
+    # Fallback to CPU for all other cases (including ARM processors)
+    return "cpu"
+
+# Detect device capabilities and get optimized parameters
+DEVICE_CAPABILITIES = detect_device_capabilities()
+DEFAULT_PARAMS = get_optimized_model_params(DEVICE_CAPABILITIES)
+
+# Lazy device detection - only called when needed
+DEVICE = None
