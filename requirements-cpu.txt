@@ -1,4 +1,7 @@
-# CPU-first PyTorch installation (works on all platforms)
+# CPU-only requirements for systems without CUDA/GPU support
+# This file ensures compatibility with diffusers and avoids CUDA dependencies
+
+# PyTorch CPU-only (explicitly specify CPU versions)
 --index-url https://download.pytorch.org/whl/cpu
 torch>=2.0.0
 torchvision>=0.15.0
@@ -25,5 +28,5 @@ flask>=2.3.0
 python-dotenv>=1.0.0
 gunicorn>=21.0.0
 
-# Note: xformers is excluded to avoid CUDA dependencies
-# Note: Uses CPU-specific PyTorch index for compatibility
+# Note: xformers is explicitly excluded as it requires CUDA and compiled C++ extensions
+# Note: Uses CPU-specific PyTorch index to avoid CUDA dependencies

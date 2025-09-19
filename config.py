@@ -38,19 +38,32 @@ MODELS = {
 # Device configuration
 def get_device():
     """Detect the best available device for AI processing."""
-    import torch
+    try:
+        import torch
+    except ImportError:
+        # If torch is not available, default to CPU
+        return "cpu"
     
-    # Check if CUDA is explicitly disabled
-    if os.environ.get("CUDA_VISIBLE_DEVICES") == "":
+    # Check if CUDA is explicitly disabled via environment variables
+    if (os.environ.get("CUDA_VISIBLE_DEVICES") == "" or 
+        os.environ.get("FORCE_CPU", "").lower() in ("1", "true", "yes")):
         return "cpu"
     
     # Check for CUDA availability (NVIDIA GPUs)
-    if torch.cuda.is_available():
-        return "cuda"
+    try:
+        if torch.cuda.is_available():
+            return "cuda"
+    except Exception:
+        # CUDA might be broken or not properly installed, fall back to CPU
+        pass
     
     # Check for Metal Performance Shaders (Apple Silicon)
-    if hasattr(torch.backends, 'mps') and torch.backends.mps.is_available():
-        return "mps"
+    try:
+        if hasattr(torch.backends, 'mps') and torch.backends.mps.is_available():
+            return "mps"
+    except Exception:
+        # MPS might be broken, fall back to CPU
+        pass
     
     # Fallback to CPU for all other cases (including ARM processors)
     return "cpu"

@@ -73,12 +73,19 @@ def test_requirements_files():
     print("\n📦 Testing requirements files...")
     
     try:
-        # Check regular requirements
+        # Check regular requirements (now CPU-first)
         with open('requirements.txt', 'r') as f:
             content = f.read()
             assert 'torch' in content, "PyTorch not found in requirements"
-            assert 'platform_machine' in content, "ARM detection not in requirements"
+            assert 'index-url' in content and 'cpu' in content, "CPU-first PyTorch not configured"
             print("✅ Regular requirements.txt validated")
+        
+        # Check CPU-only requirements
+        with open('requirements-cpu.txt', 'r') as f:
+            content = f.read()
+            assert 'torch' in content, "PyTorch not found in CPU requirements"
+            assert 'index-url' in content and 'cpu' in content, "CPU PyTorch index not found"
+            print("✅ CPU requirements.txt validated")
         
         # Check ARM requirements
         with open('requirements-arm.txt', 'r') as f:

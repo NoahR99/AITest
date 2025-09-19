@@ -106,6 +106,11 @@ def setup_performance_environment():
         "HF_HOME": os.path.join(os.getcwd(), "cache", "huggingface"),
     }
     
+    # Check if user wants to force CPU mode
+    if os.environ.get("FORCE_CPU", "").lower() in ("1", "true", "yes"):
+        env_vars["CUDA_VISIBLE_DEVICES"] = ""
+        logger.info("FORCE_CPU enabled - disabling CUDA")
+    
     # ARM-specific optimizations
     machine = platform.machine().lower()
     if any(arch in machine for arch in ['arm', 'aarch64']):
@@ -113,6 +118,13 @@ def setup_performance_environment():
             "MKL_NUM_THREADS": "1",  # Disable Intel MKL on ARM
             "NUMEXPR_NUM_THREADS": "1",
             "OPENBLAS_NUM_THREADS": "4",  # OpenBLAS is more common on ARM
+        })
+    else:
+        # x86/x64 CPU optimizations
+        cpu_count = os.cpu_count() or 4
+        omp_threads = min(cpu_count, 8)  # Cap at 8 threads for stability
+        env_vars.update({
+            "OMP_NUM_THREADS": str(omp_threads),
         })
     
     for key, value in env_vars.items():
